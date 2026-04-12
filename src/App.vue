@@ -85,7 +85,7 @@ const showFooter = computed(() => route.path !== '/quiz')
         </div>
         <div class="footer-section">
           <h3 class="footer-title">友情链接</h3>
-          <p class="footer-note">特别鸣谢 <a href="https://saurlax.com/" target="_blank" rel="noopener noreferrer" style="color: #3ba17c; text-decoration: none; font-weight: 600;">GPT5.4</a> 的支持</p>
+          <p class="footer-note">特别鸣谢 <a href="https://saurlax.com/" target="_blank" rel="noopener noreferrer" style="color: #3ba17c; text-decoration: none; font-weight: 600;">saurlax</a> 提供 GPT-5.4 Token 支持</p>
         </div>
       </div>
       <div class="footer-bottom">
