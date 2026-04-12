@@ -287,7 +287,7 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
         <section v-if="primaryCharacter" class="tags-block" v-reveal>
           <h3>
             <AppIcon name="character" />
-            角色映射
+            {{ t('result.tags') }}
           </h3>
           <div class="tags-wrap">
             <span v-for="(tag, idx) in primaryCharacter.tags" :key="tag"># {{ t('characters.' + primaryCharacter.id + '.tags.' + idx, undefined, tag) }}</span>
@@ -317,7 +317,7 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
         <div class="sidebar-actions">
           <button @click="copyText">
             <AppIcon name="copy" />
-            分享结果
+            {{ t('result.share') }}
           </button>
           <p v-if="share.feedback.value" class="sidebar-feedback">{{ share.feedback.value }}</p>
         </div>
