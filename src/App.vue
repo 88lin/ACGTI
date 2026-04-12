@@ -22,6 +22,12 @@
       </nav>
     </header>
 
+    <div class="github-ribbon" v-if="$route.path === '/'">
+      <a href="https://github.com/TX/ACGTI" target="_blank" rel="noopener">
+        Star on GitHub
+      </a>
+    </div>
+
     <!-- Main Content -->
     <main class="site-main">
       <RouterView />
@@ -48,6 +54,13 @@
           <p class="footer-note">结果会直接命中唯一角色，并展示该角色对应的自定义角色代码。</p>
           <p class="footer-note">测试结果仅保存在当前浏览器，不会上传到后端。</p>
           <p class="footer-note">本项目用于娱乐表达，不替代专业评估。</p>
+        </div>
+        <div class="footer-section">
+          <h3 class="footer-title">开源社区</h3>
+          <p class="footer-note">欢迎对本项目进行代码贡献或内容扩充。</p>
+          <a href="https://github.com/TX/ACGTI" target="_blank" rel="noopener" class="footer-link-highlight">
+            给项目一个 Star →
+          </a>
         </div>
         <div class="footer-section">
           <h3 class="footer-title">当前状态</h3>

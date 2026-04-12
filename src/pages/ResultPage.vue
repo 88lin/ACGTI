@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import AdsenseSlot from '../components/AdsenseSlot.vue'
 import AppIcon from '../components/AppIcon.vue'
+import GithubStar from '../components/GithubStar.vue'
 import { useShare } from '../composables/useShare'
 import { useQuiz } from '../composables/useQuiz'
 import { normalizeMbtiCode } from '../utils/quizEngine'
@@ -320,13 +321,10 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
 
         <div class="sidebar-card project-card">
           <p class="small-title">开源项目</p>
-          <p style="margin: 8px 0 4px; font-size: 14px; line-height: 1.6; color: #5f6b75;">
-            ACGTI 是一个开源项目，当前仍处于早期阶段，题目和角色都还不够丰富。
+          <p style="margin: 8px 0 12px; font-size: 14px; line-height: 1.6; color: #5f6b75;">
+            ACGTI 是一个开源项目，当前仍处于早期阶段，题目内容与角色库正持续扩充完善中。
           </p>
-          <a href="https://github.com/tianxingleo/ACGTI" target="_blank" rel="noopener" class="project-link">
-            GitHub 仓库 →
-          </a>
-          <p class="project-cta">欢迎 Star / Fork / PR</p>
+          <GithubStar theme="secondary" size="sm" style="width: 100%; justify-content: center;" />
         </div>
       </aside>
     </div>

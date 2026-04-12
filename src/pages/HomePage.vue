@@ -7,6 +7,9 @@
           仅需 10 分钟，获得一份高贴合度角色人格报告：命中角色代码、维度倾向比例，以及对应二次元角色原型。
         </p>
         <RouterLink to="/quiz" class="hero-button">开始测试 →</RouterLink>
+        <div class="hero-github">
+          <GithubStar theme="light" size="sm" />
+        </div>
       </div>
 
       <div class="hero-wave"></div>
@@ -119,7 +122,9 @@
 </template>
 
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
 import AdsenseSlot from '../components/AdsenseSlot.vue'
+import GithubStar from '../components/GithubStar.vue'
 
 const homeAdSlot = String(import.meta.env.VITE_ADSENSE_SLOT_HOME ?? '').trim()
 
@@ -221,6 +226,10 @@ const testimonials = [
 
 .hero-button:hover {
   transform: translateY(-2px);
+}
+
+.hero-github {
+  margin-top: 24px;
 }
 
 .hero-wave {

@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import GithubStar from '../components/GithubStar.vue'
+</script>
+
 <template>
   <div class="page-stack compact">
     <section class="hero-panel">
@@ -7,8 +11,11 @@
         ACGTI（ACG Type Indicator）是一个以 MBTI 为基础的二次元角色原型测试站点。通过回答情境式问题，获得唯一命中的角色代码、维度倾向比例，以及对应的二次元角色原型解析。当前版本为纯静态前端，部署在 Cloudflare Pages 上。
       </p>
       <p class="lead">
-        项目完全开源，代码仓库：<a href="https://github.com/tianxingleo/ACGTI" target="_blank" rel="noopener" style="color: var(--accent); font-weight: 600;">GitHub - tianxingleo/ACGTI</a>。欢迎 Star、欢迎 Fork、欢迎 PR！当前项目仍处于早期阶段，题目数量和角色库都还不够丰富，如果你有好的情境题目想法或想补充更多作品的角色，非常期待你的参与。
+        项目完全开源，欢迎大家参与贡献。如果这个项目对你有帮助，或者你觉得这个点子很有意思，欢迎点击下方按钮给项目一个 Star 以示鼓励。
       </p>
+      <div style="margin-top: 2rem;">
+        <GithubStar theme="primary" size="lg" />
+      </div>
     </section>
 
     <section class="split-grid">
