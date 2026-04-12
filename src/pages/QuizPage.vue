@@ -2,33 +2,21 @@
   <div class="quiz-page-16p">
     <main class="quiz-main">
       <section class="hero">
-        <h1>免费性格测试</h1>
+        <h1>{{ t('quiz.heroTitle') }}</h1>
         <p>ACG Type Indicator</p>
       </section>
 
       <section class="step-cards" aria-label="测试步骤">
-        <article class="step-card step-teal">
-          <span class="step-pill">STEP 1</span>
-          <h3>完成测试</h3>
-          <p>做真实的自己并诚实回答，以发现你的性格类型。</p>
-        </article>
-
-        <article class="step-card step-green">
-          <span class="step-pill">STEP 2</span>
-          <h3>查看详细结果</h3>
-          <p>了解你的性格类型如何影响你生活的各个方面。</p>
-        </article>
-
-        <article class="step-card step-purple">
-          <span class="step-pill">STEP 3</span>
-          <h3>解锁你的潜能</h3>
-          <p>结合你的偏好维度，获取更匹配的发展建议。</p>
+        <article v-for="(item, i) in tm<string[][]>('quiz.steps')" :key="i" class="step-card" :class="i === 0 ? 'step-teal' : i === 1 ? 'step-green' : 'step-purple'">
+          <span class="step-pill">{{ item[0] }}</span>
+          <h3>{{ item[1] }}</h3>
+          <p>{{ item[2] }}</p>
         </article>
       </section>
 
       <section class="quiz-notice" aria-label="测试说明">
-        <p>本测试共 {{ questions.length }} 题，基于 MBTI 四个维度计算人格倾向，再映射到唯一命中的角色代码、对应原型与维度比例。</p>
-        <p>结果仅保存在当前浏览器，不收集邮箱、性别等个人信息。</p>
+        <p>{{ t('quiz.noticeA', { count: questions.length }) }}</p>
+        <p>{{ t('quiz.noticeB') }}</p>
       </section>
 
       <section class="question-list" aria-label="测试题目">
@@ -39,12 +27,12 @@
           :class="{ 'needs-answer': pendingUnansweredIndex === idx }"
           :ref="(el) => setQuestionRef(el, idx)"
         >
-          <h2>{{ question.text ?? question.prompt ?? '（题干缺失）' }}</h2>
+          <h2>{{ question.text ?? question.prompt ?? t('quiz.missingQuestion') }}</h2>
 
           <div class="question-scale">
-            <span class="agree-label">同意</span>
+            <span class="agree-label">{{ t('quiz.agree') }}</span>
 
-            <div class="scale-buttons" role="radiogroup" :aria-label="`问题 ${idx + 1}`">
+            <div class="scale-buttons" role="radiogroup" :aria-label="t('quiz.questionLabel', { index: idx + 1 })">
               <button
                 v-for="option in scaleOptions"
                 :key="option.value"
@@ -63,25 +51,25 @@
               </button>
             </div>
 
-            <span class="disagree-label">不同意</span>
+            <span class="disagree-label">{{ t('quiz.disagree') }}</span>
           </div>
 
           <div class="mobile-labels">
-            <span class="agree-label">同意</span>
-            <span class="disagree-label">不同意</span>
+            <span class="agree-label">{{ t('quiz.agree') }}</span>
+            <span class="disagree-label">{{ t('quiz.disagree') }}</span>
           </div>
         </article>
       </section>
 
       <section class="result-form-card">
         <div class="submit-row">
-          <p class="progress-hint">已完成 {{ answeredCount }} / {{ questions.length }} 题（题目数量也是有“小巧思”哦）</p>
+          <p class="progress-hint">{{ t('quiz.progressHint', { answered: answeredCount, total: questions.length }) }}</p>
           <button
             class="submit-btn"
             type="button"
             @click="submitQuiz"
           >
-            查看结果
+            {{ t('quiz.submit') }}
           </button>
         </div>
       </section>
@@ -89,13 +77,13 @@
 
     <footer class="quiz-footer">
       <div class="quiz-footer-inner">
-        <div class="share-count">{{ questions.length }} 题 MBTI 测试</div>
+        <div class="share-count">{{ t('quiz.footerCount', { count: questions.length }) }}</div>
         <div class="footer-links">
-          <RouterLink to="/">首页</RouterLink>
-          <RouterLink to="/intro">人格类型</RouterLink>
-          <RouterLink to="/about">项目说明</RouterLink>
-          <RouterLink to="/result">最近结果</RouterLink>
-          <span>本地保存</span>
+          <RouterLink to="/">{{ tm<Record<string, string>>('app.footer.social').home }}</RouterLink>
+          <RouterLink to="/intro">{{ tm<Record<string, string>>('app.footer.social').intro }}</RouterLink>
+          <RouterLink to="/about">{{ tm<Record<string, string>>('app.footer.social').about }}</RouterLink>
+          <RouterLink to="/result">{{ t('app.nav.result') }}</RouterLink>
+          <span>{{ t('quiz.footerLocal') }}</span>
         </div>
         <p>© 2026 ACGTI Project</p>
       </div>
@@ -104,11 +92,12 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { nextTick, ref, computed } from 'vue'
 import type { ComponentPublicInstance } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useQuiz } from '../composables/useQuiz'
+import { useI18n } from '../i18n'
 
 type ScaleSide = 'agree' | 'neutral' | 'disagree'
 
@@ -130,19 +119,24 @@ const {
   selectOptionAt,
   finalizeQuiz,
 } = useQuiz()
+const { t, tm } = useI18n()
+
 const questionRefs = ref<HTMLElement[]>([])
 const pendingUnansweredIndex = ref<number | null>(null)
 let unansweredHighlightTimer: ReturnType<typeof setTimeout> | null = null
 
-const scaleOptions: ScaleOption[] = [
-  { value: 3, label: '强烈同意', side: 'agree', sizeClass: 'size-xl' },
-  { value: 2, label: '同意', side: 'agree', sizeClass: 'size-lg' },
-  { value: 1, label: '略微同意', side: 'agree', sizeClass: 'size-md' },
-  { value: 0, label: '中立', side: 'neutral', sizeClass: 'size-sm' },
-  { value: -1, label: '略微不同意', side: 'disagree', sizeClass: 'size-md' },
-  { value: -2, label: '不同意', side: 'disagree', sizeClass: 'size-lg' },
-  { value: -3, label: '强烈不同意', side: 'disagree', sizeClass: 'size-xl' },
-]
+const scaleOptions = computed<ScaleOption[]>(() => {
+  const scaleTitles = tm<string[]>('quiz.scale')
+  return [
+    { value: 3, label: scaleTitles[0], side: 'agree', sizeClass: 'size-xl' },
+    { value: 2, label: scaleTitles[1], side: 'agree', sizeClass: 'size-lg' },
+    { value: 1, label: scaleTitles[2], side: 'agree', sizeClass: 'size-md' },
+    { value: 0, label: scaleTitles[3], side: 'neutral', sizeClass: 'size-sm' },
+    { value: -1, label: scaleTitles[4], side: 'disagree', sizeClass: 'size-md' },
+    { value: -2, label: scaleTitles[5], side: 'disagree', sizeClass: 'size-lg' },
+    { value: -3, label: scaleTitles[6], side: 'disagree', sizeClass: 'size-xl' },
+  ]
+})
 
 function onSelect(questionIndex: number, value: number) {
   selectOptionAt(questionIndex, value)

@@ -2,15 +2,13 @@
   <div class="home">
     <section class="hero">
       <div class="container hero-inner">
-        <h1 class="hero-title">"终于有人把你看懂了。"</h1>
-        <p class="hero-subtitle">
-          仅需 10 分钟，获得一份高贴合度角色人格报告：命中角色代码、维度倾向比例，以及对应二次元角色原型。
-        </p>
+        <h1 class="hero-title">{{ t('home.heroTitle') }}</h1>
+        <p class="hero-subtitle">{{ t('home.heroSubtitle') }}</p>
         <div style="display: flex; gap: 16px; justify-content: center; align-items: center; margin-top: 2rem; flex-wrap: wrap;">
-          <RouterLink to="/quiz" class="hero-button" style="margin-top: 0;">开始测试 →</RouterLink>
+          <RouterLink to="/quiz" class="hero-button" style="margin-top: 0;">{{ t('home.start') }}</RouterLink>
           <a href="https://github.com/tianxingleo/ACGTI" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.125rem; font-weight: 700; color: #fff; background: rgba(59, 161, 124, 0.9); padding: 0.8rem 2rem; border-radius: 50px; text-decoration: none; border: 2px solid transparent; transition: all 0.2s;">
             <svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-            去给项目 Star
+            {{ t('home.starProject') }}
           </a>
         </div>
       </div>
@@ -42,7 +40,7 @@
 
     <section v-if="homeAdSlot" class="ad-section">
       <div class="container">
-        <AdsenseSlot :slot="homeAdSlot" label="赞助内容" />
+        <AdsenseSlot :slot="homeAdSlot" :label="t('app.common.sponsored')" />
       </div>
     </section>
 
@@ -50,13 +48,11 @@
       <div class="container feature-layout">
         <article>
           <p class="feature-tag tag-green">Personality Types</p>
-          <h2 class="feature-title">理解他人，也更理解自己</h2>
-          <p class="feature-copy">
-            我们以 MBTI 四维度作为底层判定框架，对外展示命中角色代码与原型解析，让你快速理解这份结果背后的驱动力、压力点与关系风格。
-          </p>
+          <h2 class="feature-title">{{ t('home.featureA.title') }}</h2>
+          <p class="feature-copy">{{ t('home.featureA.copy') }}</p>
           <div class="feature-actions">
-            <RouterLink to="/intro" class="btn btn-green">查看 16 型人格</RouterLink>
-            <RouterLink to="/intro" class="link-green">阅读理论 →</RouterLink>
+            <RouterLink to="/intro" class="btn btn-green">{{ t('home.featureA.button') }}</RouterLink>
+            <RouterLink to="/intro" class="link-green">{{ t('home.featureA.link') }}</RouterLink>
           </div>
         </article>
         <aside class="feature-illustration office-1" aria-hidden="true">
@@ -80,11 +76,9 @@
         </aside>
         <article>
           <p class="feature-tag tag-blue">Results</p>
-          <h2 class="feature-title">把维度判定翻译成看得懂的角色语言</h2>
-          <p class="feature-copy">
-            结果页会展示唯一命中角色、角色代码、四个维度的倾向比例，以及对应原型的亮点与短板，帮助你快速理解这份结果到底在说什么。
-          </p>
-          <RouterLink to="/intro" class="btn btn-blue">先看结果结构</RouterLink>
+          <h2 class="feature-title">{{ t('home.featureB.title') }}</h2>
+          <p class="feature-copy">{{ t('home.featureB.copy') }}</p>
+          <RouterLink to="/intro" class="btn btn-blue">{{ t('home.featureB.button') }}</RouterLink>
         </article>
       </div>
     </section>
@@ -93,7 +87,7 @@
       <div class="quote-badge">“</div>
       <div class="container">
         <p class="testimonial-tag">Testimonials</p>
-        <h2 class="testimonial-title">看看大家的测试反馈</h2>
+        <h2 class="testimonial-title">{{ t('home.testimonialsTitle') }}</h2>
 
         <div class="testimonial-track">
           <article v-for="item in testimonials" :key="item.name" class="testimonial-card">
@@ -116,13 +110,11 @@
     <!-- GitHub Star Call to Action -->
     <section class="feature feature-light text-center" style="padding-top: 5rem; padding-bottom: 5rem;">
       <div class="container">
-        <h2 class="feature-title" style="margin-bottom: 1rem;">开源且持续进化</h2>
-        <p class="feature-copy" style="max-width: 600px; margin: 0 auto 2.5rem;">
-          ACGTI 是一个由社区驱动的开源项目。如果您喜欢这种二次元风格的人格测试，欢迎在 GitHub 上为我们点亮 Star (⭐) ！您的支持是我们持续优化的最大动力。
-        </p>
+        <h2 class="feature-title" style="margin-bottom: 1rem;">{{ t('home.ossTitle') }}</h2>
+        <p class="feature-copy" style="max-width: 600px; margin: 0 auto 2.5rem;">{{ t('home.ossCopy') }}</p>
         <a href="https://github.com/tianxingleo/ACGTI" target="_blank" rel="noopener noreferrer" class="btn btn-green" style="display: inline-flex; justify-content: center; align-items: center; gap: 0.5rem; max-width: 250px; margin: 0 auto;">
           <svg style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-          去 GitHub 点赞支持
+          {{ t('home.ossButton') }}
         </a>
       </div>
     </section>
@@ -130,8 +122,8 @@
     <section class="cta">
       <div class="cta-top-wave"></div>
       <div class="container cta-inner">
-        <h2>想知道你会命中哪一个角色代码？</h2>
-        <RouterLink to="/quiz" class="hero-button">立即开始测试 →</RouterLink>
+        <h2>{{ t('home.ctaTitle') }}</h2>
+        <RouterLink to="/quiz" class="hero-button">{{ t('home.ctaButton') }}</RouterLink>
       </div>
       <div class="cta-bottom-wave"></div>
     </section>
@@ -139,18 +131,17 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import AdsenseSlot from '../components/AdsenseSlot.vue'
+import { useI18n } from '../i18n'
 
 const homeAdSlot = String(import.meta.env.VITE_ADSENSE_SLOT_HOME ?? '').trim()
+const { t, tm } = useI18n()
 
-const stats = [
-  { value: "37", label: "测试题数", color: "#4899a3" },
-  { value: "16", label: "MBTI 类型", color: "#e5b540" },
-  { value: "8", label: "原型映射", color: "#5ca173" },
-  { value: "22", label: "当前角色库", color: "#9474a4" },
-]
+const stats = computed(() => tm<Array<{ value: string; label: string; color: string }>>('home.stats'))
 
-const testimonials = [
+const testimonialBase = [
   {
     name: "Benny",
     role: "ARCHITECT",
@@ -181,9 +172,15 @@ const testimonials = [
     type: "ENTJ",
     color: "#8a609d",
     avatar: "linear-gradient(135deg, #ffe6a8 0%, #fff1cb 100%)",
-    quote: "我原本只想随便测测，没想到结论和我现实状态高度一致。",
   },
 ]
+
+const testimonials = computed(() =>
+  testimonialBase.map((item, index) => ({
+    ...item,
+    quote: tm<string[]>('home.testimonials')[index] ?? '',
+  })),
+)
 </script>
 
 <style scoped>

@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 
 import type { QuizResult } from '../types/quiz'
+import { t } from '../i18n'
 
 let htmlToImageLoader: Promise<typeof import('html-to-image')> | null = null
 
@@ -8,13 +9,13 @@ function createShareText(result: QuizResult) {
   const featured = result.characterMatches[0]
 
   return [
-    `我在 ACGTI 命中的角色代码是 ${result.code}`,
-    `命中角色：${featured ? `${featured.name}（${featured.series}）` : '未知角色'}`,
-    `匹配概率：${result.matchProbability}%`,
-    '该概率表示在等概率随机答卷模型下，该角色在总体结果中的命中占比。',
-    `对应原型：${result.archetype.name}`,
+    t('common.shareCode', { code: result.code }),
+    featured ? t('common.shareCharacter', { name: featured.name, series: featured.series }) : t('common.shareUnknown'),
+    t('common.shareProbability', { prob: result.matchProbability }),
+    t('common.shareProbabilityDesc'),
+    t('common.shareArchetype', { name: result.archetype.name }),
     result.archetype.subtitle,
-    `剧情位置：${result.archetype.narrativeRole}`,
+    t('common.shareRole', { role: result.archetype.narrativeRole }),
   ].join('\n')
 }
 
@@ -43,9 +44,9 @@ export function useShare() {
       link.href = dataUrl
       link.download = `acgti-${result.archetype.id}.png`
       link.click()
-      feedback.value = '海报已导出为 PNG。'
+      feedback.value = t('common.exportSuccess')
     } catch {
-      feedback.value = '导出失败，请稍后重试。'
+      feedback.value = t('common.exportFail')
     } finally {
       isExporting.value = false
     }
@@ -56,9 +57,9 @@ export function useShare() {
 
     try {
       await navigator.clipboard.writeText(text)
-      feedback.value = '分享文案已复制。'
+      feedback.value = t('common.copySuccess')
     } catch {
-      feedback.value = '复制失败，请手动截图。'
+      feedback.value = t('common.copyFail')
     }
   }
 

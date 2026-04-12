@@ -194,6 +194,24 @@ select {
   gap: 4px;
 }
 
+.language-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.language-select select {
+  border: 1px solid #dbe2e7;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  padding: 6px 10px;
+}
+
 .site-nav a {
   padding: 9px 12px;
   border-radius: 999px;

@@ -6,6 +6,7 @@ import AdsenseSlot from '../components/AdsenseSlot.vue'
 import AppIcon from '../components/AppIcon.vue'
 import { useShare } from '../composables/useShare'
 import { useQuiz } from '../composables/useQuiz'
+import { useI18n } from '../i18n'
 import { normalizeMbtiCode } from '../utils/quizEngine'
 
 const route = useRoute()
@@ -15,6 +16,7 @@ const activeDebugResult = ref<ReturnType<typeof quiz.createDebugResult>>(null)
 const result = computed(() => activeDebugResult.value ?? quiz.latestResult.value)
 const isCharacterImageBroken = ref(false)
 const share = useShare()
+const { t, tm } = useI18n()
 const resultAdSlot = String(import.meta.env.VITE_ADSENSE_SLOT_RESULT ?? '').trim()
 
 onMounted(() => {
@@ -94,7 +96,7 @@ const strongestTrait = computed(() => {
     return null
   }
 
-  return traits.reduce((strongest, trait) => {
+  return traits.value.reduce((strongest, trait) => {
     const currentScore = result.value!.scores[trait.id]
 
     if (!strongest || currentScore.percentage > strongest.score.percentage) {
@@ -105,7 +107,7 @@ const strongestTrait = computed(() => {
     }
 
     return strongest
-  }, null as { trait: (typeof traits)[number]; score: (typeof result.value.scores)[TraitDimension] } | null)
+  }, null as { trait: (typeof traits.value)[number]; score: (typeof result.value.scores)[TraitDimension] } | null)
 })
 
 watch(primaryCharacterImage, () => {
@@ -114,19 +116,15 @@ watch(primaryCharacterImage, () => {
 
 type TraitDimension = 'E_I' | 'S_N' | 'T_F' | 'J_P'
 
-const traits: Array<{
-  id: TraitDimension
-  leftCode: string
-  leftLabel: string
-  rightCode: string
-  rightLabel: string
-  color: string
-}> = [
-  { id: 'E_I', leftCode: 'E', leftLabel: '外向', rightCode: 'I', rightLabel: '内向', color: '#4298B4' },
-  { id: 'S_N', leftCode: 'S', leftLabel: '实感', rightCode: 'N', rightLabel: '直觉', color: '#E4AE3A' },
-  { id: 'T_F', leftCode: 'T', leftLabel: '理智', rightCode: 'F', rightLabel: '情感', color: '#33A474' },
-  { id: 'J_P', leftCode: 'J', leftLabel: '判断', rightCode: 'P', rightLabel: '感知', color: '#88619A' },
-]
+const traits = computed(() => {
+  const tDims = tm<Record<string, string[]>>('result.dimensions');
+  return [
+    { id: 'E_I' as const, leftCode: 'E', leftLabel: tDims.E_I[0], rightCode: 'I', rightLabel: tDims.E_I[1], color: '#4298B4' },
+    { id: 'S_N' as const, leftCode: 'S', leftLabel: tDims.S_N[0], rightCode: 'N', rightLabel: tDims.S_N[1], color: '#E4AE3A' },
+    { id: 'T_F' as const, leftCode: 'T', leftLabel: tDims.T_F[0], rightCode: 'F', rightLabel: tDims.T_F[1], color: '#33A474' },
+    { id: 'J_P' as const, leftCode: 'J', leftLabel: tDims.J_P[0], rightCode: 'P', rightLabel: tDims.J_P[1], color: '#88619A' },
+  ];
+})
 
 function getHandlePosition(traitId: TraitDimension, leftCode: string) {
   if (!result.value) return 50
@@ -152,18 +150,18 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
     <section class="result-hero" :style="{ background: resultThemeColor }">
       <div class="result-hero-inner">
         <div class="hero-copy type-box">
-          <p class="hero-caption">你的匹配角色谱系</p>
+          <p class="hero-caption">{{ t('result.heroCaption') }}</p>
           <h1 class="hero-title">{{ primaryCharacter?.name || result.archetype.name }}</h1>
           <div class="hero-badge-wrap">
             <span class="hero-code">{{ displayCode }}</span>
           </div>
           <div class="hero-metrics">
             <div class="hero-metric">
-              <span>稀有度</span>
+              <span>{{ t('result.rarity') }}</span>
               <strong>{{ result.matchProbability }}%</strong>
             </div>
             <div class="hero-metric">
-              <span>整体命中感</span>
+              <span>{{ t('result.match') }}</span>
               <strong>{{ result.matchScore }}%</strong>
             </div>
           </div>
@@ -172,7 +170,7 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
           <div class="hero-actions">
             <button class="action-btn light" @click="copyText">
               <AppIcon name="copy" />
-              复制文案
+              {{ t('result.copy') }}
             </button>
             <a href="https://github.com/tianxingleo/ACGTI" target="_blank" rel="noopener noreferrer" class="action-btn" style="background: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border: none;">
               <svg style="width: 18px; height: 18px;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
@@ -180,7 +178,7 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
             </a>
             <button class="action-btn ghost" @click="retry">
               <AppIcon name="refresh" />
-              重新测试
+              {{ t('result.retry') }}
             </button>
           </div>
           <p v-if="share.feedback.value" class="hero-feedback">{{ share.feedback.value }}</p>
@@ -219,7 +217,7 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
         <section class="traits-section" id="traits-section">
           <div class="section-title-wrap">
             <div class="section-index">1</div>
-            <h2 class="section-title">人格特质倾向</h2>
+            <h2 class="section-title">{{ t('result.traitsTitle') }}</h2>
           </div>
 
           <div class="traits-card">
@@ -254,7 +252,7 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
             </div>
 
             <aside class="traits-highlight">
-              <p class="highlight-name">当前最显著维度</p>
+              <p class="highlight-name">{{ t('result.strongest') }}</p>
               <h3 :style="{ color: strongestTrait?.trait.color ?? '#4298B4' }">
                 {{ strongestTrait?.score.percentage ?? 0 }}% {{ strongestTrait ? getDominantTraitLabel(strongestTrait.trait.id, strongestTrait.trait.leftCode, strongestTrait.trait.leftLabel, strongestTrait.trait.rightLabel) : '' }}
               </h3>
@@ -262,7 +260,7 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
                 <AppIcon name="chart" />
               </div>
               <p v-if="strongestTrait">
-                这一维度在你的答题里最稳定，当前更明显地指向{{ getDominantTraitLabel(strongestTrait.trait.id, strongestTrait.trait.leftCode, strongestTrait.trait.leftLabel, strongestTrait.trait.rightLabel) }}取向。
+                {{ t('result.strongestCopy', { label: getDominantTraitLabel(strongestTrait.trait.id, strongestTrait.trait.leftCode, strongestTrait.trait.leftLabel, strongestTrait.trait.rightLabel) }) }}
               </p>
             </aside>
           </div>
@@ -296,23 +294,23 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
         </section>
 
         <section v-if="resultAdSlot" class="result-ad-section">
-          <AdsenseSlot :slot="resultAdSlot" label="赞助内容" />
+          <AdsenseSlot :slot="resultAdSlot" :label="t('common.sponsored')" />
         </section>
       </main>
 
       <aside class="result-sidebar">
         <div class="sidebar-card profile-card">
-          <p class="small-title">命中角色</p>
+          <p class="small-title">{{ t('result.hitCharacter') }}</p>
           <h3>{{ primaryCharacter?.name || result.archetype.name }}</h3>
           <p class="profile-code">{{ displayCode }}</p>
-          <p class="profile-probability">匹配概率 {{ result.matchProbability }}%</p>
+          <p class="profile-probability">{{ t('result.matchProbability', { value: result.matchProbability }) }}</p>
         </div>
 
         <div class="sidebar-card nav-card">
-          <p class="small-title">本页内容</p>
-          <a href="#traits-section">1. 人格特质倾向</a>
-          <a href="#">2. 亮点与短板</a>
-          <a href="#">3. 角色映射标签</a>
+          <p class="small-title">{{ t('result.toc') }}</p>
+          <a href="#traits-section">{{ tm<string[]>('result.tocItems')[0] }}</a>
+          <a href="#">{{ tm<string[]>('result.tocItems')[1] }}</a>
+          <a href="#">{{ tm<string[]>('result.tocItems')[2] }}</a>
         </div>
 
         <div class="sidebar-actions">
@@ -323,13 +321,13 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
         </div>
 
         <div class="sidebar-card project-card">
-          <p class="small-title">开源体验</p>
+          <p class="small-title">{{ t('result.ossTitle') }}</p>
           <p style="margin: 8px 0 12px; font-size: 14px; line-height: 1.5; color: #5f6b75;">
-            如果这个测试刚好命中了你，或者让你觉得挺好玩——欢迎去 GitHub 顺手为我们点亮一颗 Star (⭐)！
+            {{ t('result.ossCopy') }}
           </p>
           <a href="https://github.com/tianxingleo/ACGTI" target="_blank" rel="noopener noreferrer" class="project-link" style="display: flex; align-items: center; justify-content: center; gap: 6px; background: #3ba17c; color: white; border-radius: 20px; padding: 6px 12px; font-weight: 600; text-decoration: none;">
             <svg style="width: 14px; height: 14px;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-            去给个 ⭐ 支持！
+            {{ t('result.ossButton') }}
           </a>
         </div>
       </aside>

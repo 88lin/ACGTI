@@ -1,11 +1,17 @@
+<script setup lang="ts">
+import { useQuiz } from '../composables/useQuiz'
+import { useI18n } from '../i18n'
+
+const { characters } = useQuiz()
+const { t } = useI18n()
+</script>
+
 <template>
   <div class="page-stack">
     <section class="hero-panel center compact">
-      <p class="eyebrow">角色图鉴</p>
-      <h1 class="display-title">所有测试结果角色</h1>
-      <p class="lead">
-        你可以浏览 ACGTI 目前收录的所有二次元角色。他们各自代表了独特的 MBTI 性格模型。
-      </p>
+      <p class="eyebrow">{{ t('characters.eyebrow') }}</p>
+      <h1 class="display-title">{{ t('characters.title') }}</h1>
+      <p class="lead">{{ t('characters.lead') }}</p>
     </section>
 
     <section class="characters-grid">
@@ -32,12 +38,6 @@
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-import { useQuiz } from '../composables/useQuiz'
-
-const { characters } = useQuiz()
-</script>
 
 <style scoped>
 .characters-grid {
