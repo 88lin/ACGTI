@@ -43,6 +43,7 @@ temp/
 
 # Local-only agent/tooling files
 AGENTS.md
+.claude/
 .playwright-mcp/
 
 # Python
