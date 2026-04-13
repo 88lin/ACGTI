@@ -162,6 +162,16 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
   if (!result.value) return ''
   return result.value.scores[traitId].dominant === leftCode ? leftLabel : rightLabel
 }
+
+function scrollToSection(sectionId: string) {
+  if (typeof window === 'undefined') return
+
+  const target = document.getElementById(sectionId)
+  if (!target) return
+
+  window.history.replaceState(null, '', `#${sectionId}`)
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 </script>
 
 <template>
@@ -292,7 +302,7 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
           </div>
         </section>
 
-        <section class="analysis-grid" v-reveal>
+        <section class="analysis-grid" id="analysis-section" v-reveal>
           <article class="analysis-card good">
             <h3>
                 <AppIcon name="star" />
@@ -309,7 +319,7 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
           </article>
         </section>
 
-        <section class="tags-block" v-if="primaryCharacter" v-reveal>
+        <section class="tags-block" id="tags-section" v-if="primaryCharacter" v-reveal>
           <h3>
             <AppIcon name="character" />
             {{ t('result.tags') }}
@@ -349,9 +359,9 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
 
         <div class="sidebar-card nav-card">
           <p class="small-title">{{ t('result.toc') }}</p>
-          <a href="#traits-section">{{ tm<string[]>('result.tocItems')[0] }}</a>
-          <a href="#">{{ tm<string[]>('result.tocItems')[1] }}</a>
-          <a href="#">{{ tm<string[]>('result.tocItems')[2] }}</a>
+          <a href="#traits-section" @click.prevent="scrollToSection('traits-section')">{{ tm<string[]>('result.tocItems')[0] }}</a>
+          <a href="#analysis-section" @click.prevent="scrollToSection('analysis-section')">{{ tm<string[]>('result.tocItems')[1] }}</a>
+          <a href="#tags-section" @click.prevent="scrollToSection('tags-section')">{{ tm<string[]>('result.tocItems')[2] }}</a>
         </div>
 
         <div class="sidebar-actions">
@@ -716,6 +726,12 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
   font-size: clamp(30px, 4vw, 44px);
   margin: 0;
   font-weight: 800;
+}
+
+.traits-section,
+.analysis-grid,
+.tags-block {
+  scroll-margin-top: 88px;
 }
 
 .traits-card {
