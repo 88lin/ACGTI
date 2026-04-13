@@ -7,19 +7,43 @@ import { getHiddenCharacterTitle, getLocalizedCharacterName, getLocalizedCharact
 
 const { characters } = useQuiz()
 const { locale, t } = useI18n()
+
+const visibleCharacters = computed(() => characters.filter((character) => !isHiddenCharacter(character)))
+const hiddenCharacters = computed(() => characters.filter((character) => isHiddenCharacter(character)))
+
 const orderedCharacters = computed(() => {
-  const visible = characters.filter((character) => !isHiddenCharacter(character))
-  const hidden = characters.filter((character) => isHiddenCharacter(character))
-  return [...visible, ...hidden]
+  return [...visibleCharacters.value, ...hiddenCharacters.value]
+})
+
+const latestCharacters = computed(() => {
+  // Use last 3 of visible characters as the latest additions
+  return [...visibleCharacters.value].slice(-3).reverse()
+})
+
+const localizedStatsText = computed(() => {
+  return t('characters.stats')?.replace('{count}', String(visibleCharacters.value.length)) || ''
 })
 </script>
 
 <template>
-  <div class="page-stack">
+  <div class="page-stack page-stack--narrow">
     <section class="hero-panel center compact">
-      <p class="eyebrow">{{ t('characters.eyebrow') }}</p>
       <h1 class="display-title">{{ t('characters.title') }}</h1>
       <p class="lead">{{ t('characters.lead') }}</p>
+      
+      <div class="stats-panel" v-if="visibleCharacters.length > 0">
+        <span class="stat-count">{{ localizedStatsText }}</span>
+        <span class="stat-divider" v-if="latestCharacters.length > 0">｜</span>
+        <span class="stat-latest" v-if="latestCharacters.length > 0">
+          {{ t('characters.latest') }}
+          <template v-for="(char, index) in latestCharacters" :key="char.id">
+            <RouterLink 
+              class="latest-link"
+              :to="{ path: '/result', query: { character: char.id } }"
+            >{{ getLocalizedCharacterName(char, locale) }}</RouterLink><span v-if="index < latestCharacters.length - 1">, </span>
+          </template>
+        </span>
+      </div>
     </section>
 
     <section class="characters-grid">
@@ -60,11 +84,53 @@ const orderedCharacters = computed(() => {
 </template>
 
 <style scoped>
+.page-stack--narrow {
+  gap: 1rem;
+}
+
+.stats-panel {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background: var(--surface-color, #ffffff);
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.stat-count {
+  font-weight: 700;
+  color: #333;
+}
+
+.stat-divider {
+  color: #ddd;
+}
+
+.stat-latest {
+  color: #666;
+}
+
+.latest-link {
+  color: var(--primary-color, #42b883);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.latest-link:hover {
+  text-decoration: underline;
+}
+
 .characters-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1.5rem;
-  padding: 1.5rem;
+  padding: 0.25rem 1.5rem 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -205,7 +271,7 @@ const orderedCharacters = computed(() => {
   .characters-grid {
       grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
-      padding: 1rem;
+      padding: 0.25rem 1rem 1rem;
   }
   
   .card-content {

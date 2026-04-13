@@ -79,7 +79,6 @@ const showFooter = computed(() => route.path !== '/quiz')
             </ul>
           </transition>
         </div>
-        <RouterLink to="/intro">{{ t('app.nav.intro') }}</RouterLink>
         <RouterLink to="/characters">{{ t('app.nav.characters') }}</RouterLink>
         <RouterLink to="/about">{{ t('app.nav.about') }}</RouterLink>
         <RouterLink to="/result" v-if="showRecentResult">{{ t('app.nav.result') }}</RouterLink>
@@ -101,12 +100,10 @@ const showFooter = computed(() => route.path !== '/quiz')
           <h3 class="footer-title">{{ t('app.footer.sections.test') }}</h3>
           <RouterLink to="/quiz" class="footer-link">{{ t('app.footer.links.startQuiz') }}</RouterLink>
           <RouterLink to="/result" class="footer-link">{{ t('app.footer.links.latestResult') }}</RouterLink>
-          <RouterLink to="/intro" class="footer-link">{{ t('app.footer.links.types') }}</RouterLink>
           <RouterLink to="/characters" class="footer-link">{{ t('app.footer.links.characters') }}</RouterLink>
         </div>
         <div class="footer-section">
           <h3 class="footer-title">{{ t('app.footer.sections.project') }}</h3>
-          <RouterLink to="/intro" class="footer-link">{{ t('app.footer.links.resultStructure') }}</RouterLink>
           <RouterLink to="/about" class="footer-link">{{ t('app.footer.links.boundaries') }}</RouterLink>
           <RouterLink to="/about" class="footer-link">{{ t('app.footer.links.roadmap') }}</RouterLink>
         </div>
@@ -140,7 +137,6 @@ const showFooter = computed(() => route.path !== '/quiz')
         <div class="footer-social">
           <RouterLink to="/" :title="t('app.footer.social.home')">{{ t('app.footer.social.home') }}</RouterLink>
           <RouterLink to="/quiz" :title="t('app.footer.social.quiz')">{{ t('app.footer.social.quiz') }}</RouterLink>
-          <RouterLink to="/intro" :title="t('app.footer.social.intro')">{{ t('app.footer.social.intro') }}</RouterLink>
           <RouterLink to="/characters" :title="t('app.footer.social.characters')">{{ t('app.footer.social.characters') }}</RouterLink>
           <RouterLink to="/about" :title="t('app.footer.social.about')">{{ t('app.footer.social.about') }}</RouterLink>
         </div>

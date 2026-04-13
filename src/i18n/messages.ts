@@ -257,6 +257,8 @@ export const messages = {
       eyebrow: '角色图鉴',
       title: '所有测试结果角色',
       lead: '你可以浏览 ACGTI 目前收录的所有二次元角色。他们各自代表了独特的 MBTI 性格模型。',
+      stats: '当前已收录 {count} 位角色',
+      latest: '🎉 最新更新：',
     },
     about: {
       eyebrow: '关于 ACGTI',
@@ -519,6 +521,8 @@ export const messages = {
     characters: {
       eyebrow: '角色圖鑑',
       title: '所有測試結果角色',
+      stats: '當前已收錄 {count} 位角色',
+      latest: '🎉 最新更新：',
       lead: '你可以瀏覽 ACGTI 目前收錄的所有二次元角色。他們各自代表了獨特的 MBTI 性格模型。',
       'hatsune-miku': {
         title: '世界第一的公主殿下（勞務派遣版）',
@@ -957,6 +961,8 @@ export const messages = {
     characters: {
       eyebrow: 'Character Index',
       title: 'All result characters',
+      stats: 'Currently {count} characters included',
+      latest: '🎉 Latest updates: ',
       lead: 'Browse every anime-style character currently included in ACGTI. Each one stands for a distinct MBTI-flavored model.',
     },
     about: {
@@ -1220,6 +1226,8 @@ export const messages = {
     characters: {
       eyebrow: 'キャラ図鑑',
       title: 'すべての結果キャラ',
+      stats: '現在 {count} 人のキャラを収録',
+      latest: '🎉 最新の更新：',
       lead: 'ACGTI に収録されているキャラを一覧で見られます。各キャラは MBTI ベースの別々のモデルを表しています。',
     },
     about: {

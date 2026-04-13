@@ -97,8 +97,8 @@
           <h2 class="feature-title">{{ t('home.featureA.title') }}</h2>
           <p class="feature-copy">{{ t('home.featureA.copy') }}</p>
           <div class="feature-actions">
-            <RouterLink to="/intro" class="btn btn-green">{{ t('home.featureA.button') }}</RouterLink>
-            <RouterLink to="/intro" class="link-green">{{ t('home.featureA.link') }}</RouterLink>
+            <RouterLink to="/about" class="btn btn-green">{{ t('home.featureA.button') }}</RouterLink>
+            <RouterLink to="/about" class="link-green">{{ t('home.featureA.link') }}</RouterLink>
           </div>
         </article>
         <aside class="feature-illustration office-1" aria-hidden="true">
@@ -124,7 +124,7 @@
           <p class="feature-tag tag-blue">Results</p>
           <h2 class="feature-title">{{ t('home.featureB.title') }}</h2>
           <p class="feature-copy">{{ t('home.featureB.copy') }}</p>
-          <RouterLink to="/intro" class="btn btn-blue">{{ t('home.featureB.button') }}</RouterLink>
+          <RouterLink to="/quiz" class="btn btn-blue">{{ t('home.featureB.button') }}</RouterLink>
         </article>
       </div>
     </section>
