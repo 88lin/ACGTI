@@ -325,7 +325,7 @@ function getDominantTraitLabel(traitId: TraitDimension, leftCode: string, leftLa
           </p>
           
           <div style="display: flex; flex-direction: column; align-items: center; gap: 24px; margin-bottom: 8px;">
-            <SharePoster ref="posterRef" :result="result" style="width: 100%; max-width: 480px; margin: 0 auto;" />
+            <SharePoster ref="posterRef" :result="result" style="margin: 0 auto; width: 100%; max-width: 440px;" />
             
             <button 
               @click="exportPosterImage" 
