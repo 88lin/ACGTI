@@ -384,10 +384,11 @@ function rankCharactersByProfile({
         ARCHETYPE_WEIGHT * archetype +
         VECTOR_WEIGHT * vector +
         CHARACTER_SPECIFIC_WEIGHT * specific
+      const weightedTotal = total * (character.matchWeight ?? 1)
 
       return {
         character,
-        total,
+        total: weightedTotal,
         mbti,
         archetype,
         vector,

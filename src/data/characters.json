@@ -1367,10 +1367,8 @@
     "hidden": true,
     "series": "鸣潮",
     "image": "/images/characters/弗洛洛.png",
-    "matchCode": "INFJ",
-    "matchCodeFlex": [
-      "INTJ"
-    ],
+    "matchCode": "INTJ",
+    "matchWeight": 0.975,
     "code": "PHRV",
     "title": "忧伤指挥家·把理想国写进丧钟的人",
     "archetypeId": "shadow-strategist",
@@ -1391,25 +1389,35 @@
     },
     "signature": {
       "uniqueAxes": {
-        "judgement": 3,
-        "temperature": -2,
-        "aura": 3
+        "judgement": 4,
+        "temperature": -3,
+        "aura": 4
       },
       "questionAffinity": [
         {
           "questionId": "q20",
           "expected": "disagree",
-          "weight": 1.2
+          "weight": 1.8
         },
         {
           "questionId": "q34",
           "expected": "agree",
-          "weight": 1.15
+          "weight": 1.7
+        },
+        {
+          "questionId": "q35",
+          "expected": "agree",
+          "weight": 1.6
+        },
+        {
+          "questionId": "q37",
+          "expected": "agree",
+          "weight": 1.7
         },
         {
           "questionId": "q39",
           "expected": "disagree",
-          "weight": 1.2
+          "weight": 1.8
         }
       ]
     }

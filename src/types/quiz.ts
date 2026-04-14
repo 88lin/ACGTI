@@ -82,6 +82,7 @@ export interface CharacterMatch {
   accent?: string
   matchCode: string
   matchCodeFlex?: string[]
+  matchWeight?: number
   code: string
   title?: string
   archetypeId: ArchetypeId
