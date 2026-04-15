@@ -724,6 +724,83 @@ select {
   line-height: 1.65;
 }
 
+.author-social-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.author-social-link {
+  --social-accent: #3ba17c;
+  --social-bg: #eef4f1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #dbe2e7;
+  border-radius: 999px;
+  background: #fff;
+  color: #3f4b54;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.author-social-link:hover {
+  border-color: color-mix(in srgb, var(--social-accent) 42%, #dbe2e7);
+  color: color-mix(in srgb, var(--social-accent) 88%, #1d2730);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--social-accent) 16%, transparent);
+}
+
+.author-social-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--social-bg);
+  color: var(--social-accent);
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.author-social-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.author-social-link:hover .author-social-icon {
+  transform: scale(1.04);
+}
+
+.author-social-link[data-brand='xiaoheihe'] {
+  --social-accent: #14191e;
+  --social-bg: #f0f2f5;
+}
+
+.author-social-link[data-brand='bilibili'] {
+  --social-accent: #00a1d6;
+  --social-bg: #eef9ff;
+}
+
+.author-social-link[data-brand='xiaohongshu'] {
+  --social-accent: #ff2442;
+  --social-bg: #fff0f3;
+}
+
+.author-social-link[data-brand='github'] {
+  --social-accent: #181717;
+  --social-bg: #f2f3f5;
+}
+
 .footer-bottom {
   max-width: 1200px;
   margin: 0 auto;
@@ -960,6 +1037,11 @@ select {
   .footer-bottom {
     flex-direction: column;
     text-align: center;
+  }
+
+  .author-social-link {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
 
