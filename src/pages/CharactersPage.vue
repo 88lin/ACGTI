@@ -1,27 +1,61 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 
 import { useQuiz } from '../composables/useQuiz'
 import { useI18n } from '../i18n'
-import { getHiddenCharacterTitle, getLocalizedCharacterName, getLocalizedCharacterSeries, isHiddenCharacter } from '../i18n/characters'
+import {
+  getHiddenCharacterOrder,
+  getHiddenCharacterTitle,
+  getLocalizedCharacterName,
+  getLocalizedCharacterSeries,
+  isHiddenCharacter,
+} from '../i18n/characters'
 
-const { characters } = useQuiz()
+const { characters, ensureData } = useQuiz()
 const { locale, t } = useI18n()
 
-const visibleCharacters = computed(() => characters.filter((character) => !isHiddenCharacter(character)))
-const hiddenCharacters = computed(() => characters.filter((character) => isHiddenCharacter(character)))
+// 进入图鉴页时才加载角色数据
+onMounted(() => {
+  void ensureData()
+})
+
+const visibleCharacters = computed(() => characters.value.filter((character) => !isHiddenCharacter(character)))
+const hiddenCharacters = computed(() => characters.value.filter((character) => isHiddenCharacter(character)))
 
 const orderedCharacters = computed(() => {
-  return [...visibleCharacters.value, ...hiddenCharacters.value]
+  return [
+    ...visibleCharacters.value,
+    ...[...hiddenCharacters.value].sort((left, right) => getHiddenCharacterOrder(left) - getHiddenCharacterOrder(right)),
+  ]
 })
 
 const latestCharacters = computed(() => {
-  // Use last 3 of visible characters as the latest additions
-  return [...visibleCharacters.value].slice(-3).reverse()
+  return [...visibleCharacters.value]
+    .map((character, index) => ({
+      character,
+      index,
+      timestamp: Date.parse(character.addedAt ?? ''),
+    }))
+    .sort((left, right) => {
+      const leftHasDate = Number.isFinite(left.timestamp)
+      const rightHasDate = Number.isFinite(right.timestamp)
+
+      if (leftHasDate && rightHasDate && left.timestamp !== right.timestamp) {
+        return right.timestamp - left.timestamp
+      }
+
+      if (leftHasDate !== rightHasDate) {
+        return leftHasDate ? -1 : 1
+      }
+
+      return right.index - left.index
+    })
+    .slice(0, 3)
+    .map(({ character }) => character)
 })
 
 const localizedStatsText = computed(() => {
-  return t('characters.stats', { count: visibleCharacters.value.length })
+  return t('characters.stats', { count: orderedCharacters.value.length })
 })
 </script>
 
@@ -31,7 +65,7 @@ const localizedStatsText = computed(() => {
       <h1 class="display-title">{{ t('characters.title') }}</h1>
       <p class="lead">{{ t('characters.lead') }}</p>
       
-      <div class="stats-panel" v-if="visibleCharacters.length > 0">
+      <div class="stats-panel" v-if="orderedCharacters.length > 0">
         <span class="stat-count">{{ localizedStatsText }}</span>
         <span class="stat-divider" v-if="latestCharacters.length > 0">｜</span>
         <span class="stat-latest" v-if="latestCharacters.length > 0">
@@ -60,10 +94,13 @@ const localizedStatsText = computed(() => {
         <div class="card-image-wrap">
           <img
             v-if="!isHiddenCharacter(character)"
-            :src="character.image"
+            :src="character.thumb || character.image"
             :alt="getLocalizedCharacterName(character, locale)"
             class="card-image"
             loading="lazy"
+            decoding="async"
+            width="320"
+            height="320"
           />
           <div v-else class="card-image-placeholder">{{ getLocalizedCharacterSeries(character, locale) }}</div>
         </div>
@@ -76,7 +113,7 @@ const localizedStatsText = computed(() => {
           <h2 class="card-name">{{ getLocalizedCharacterName(character, locale) }}</h2>
           <p class="card-source">{{ getLocalizedCharacterSeries(character, locale) }}</p>
           <p class="card-title">
-            {{ isHiddenCharacter(character) ? getHiddenCharacterTitle(locale) : t('characters.' + character.id + '.title', undefined, character.title) }}
+            {{ isHiddenCharacter(character) ? getHiddenCharacterTitle(locale, character) : t('characters.' + character.id + '.title', undefined, character.title) }}
           </p>
         </div>
       </component>

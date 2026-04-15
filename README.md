@@ -8,9 +8,11 @@ ACG Type Indicator
 
 回答情境式问题 · 获得唯一命中的角色代码 · 解锁你的二次元人格原型
 
-[![Deploy to Cloudflare Pages](https://img.shields.io/badge/Deploy-Cloudflare_Pages-F38020?style=flat-square&logo=cloudflare)](https://acgti.tianxingleo.top/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
-[![Hits](https://img.shields.io/badge/Hits-3.5M+-green.svg?style=flat-square)]()
+<p align="center">
+  <a href="https://acgti.tianxingleo.top/"><img src="https://img.shields.io/badge/Deploy-Cloudflare_Pages-F38020?style=flat-square&logo=cloudflare" alt="Deploy to Cloudflare Pages" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License" /></a>
+  <img src="https://img.shields.io/badge/Hits-4M+-green.svg?style=flat-square" alt="Hits" />
+</p>
 
 [**✨ 立即体验**](https://acgti.tianxingleo.top/) | [**📖 阅读文档**](#️-架构与原理) | [**🤝 参与贡献**](#-贡献)
 
@@ -23,18 +25,21 @@ ACG Type Indicator
 ## 🎮 界面预览
 
 <div align="center">
-  <img src="https://pub-f8d3afa0c3274f1e943ee2f8c45dff96.r2.dev/26_04_f10e65b456aae5fdb30a2c42e767cf28.webp" alt="首页截图" width="30%" />
+  <img src="https://pub-f8d3afa0c3274f1e943ee2f8c45dff96.r2.dev/26_04_85afc638204090e964a385ef024963af.webp" alt="首页截图" width="45%" />
   &nbsp;
-  <img src="https://pub-f8d3afa0c3274f1e943ee2f8c45dff96.r2.dev/26_04_4c23a24cd1e854f3852e2f2ed46cabd6.webp" alt="答题截图" width="30%" />
+  <img src="https://pub-f8d3afa0c3274f1e943ee2f8c45dff96.r2.dev/26_04_53f6126c96077f9990f8c8f4aef7d20d.webp" alt="答题截图" width="45%" />
+  <br />
+  <br />
+  <img src="https://pub-f8d3afa0c3274f1e943ee2f8c45dff96.r2.dev/26_04_a4b8624d8dfeeeb23ca0b2de7a344e24.webp" alt="结果截图一" width="45%" />
   &nbsp;
-  <img src="https://pub-f8d3afa0c3274f1e943ee2f8c45dff96.r2.dev/26_04_cd45c233a68504cfbfa9319594c223c2.webp" alt="结果截图" width="30%" />
+  <img src="https://pub-f8d3afa0c3274f1e943ee2f8c45dff96.r2.dev/26_04_83aa34b38a795f68b26eadbef4fca2b8.webp" alt="结果截图二" width="45%" />
 </div>
 
 ## ✨ 核心特性
 
 - **MBTI 四维判定**：基于 E/I、S/N、T/F、J/P 四大维度构建严谨的底层框架。
 - **8 种专属原型**：发光主角位 · 冰面观察者 · 誓约队长 · 灵巧回旋者 · 温柔修复者 · 影面策士 · 混沌火花 · 月下守护者。
-- **40+ 经典角色库**：涵盖 VOCALOID、EVA、名侦探柯南、东方、孤独摇滚、MyGO、原神等热门作品，持续扩充中。
+- **42 位角色库**：当前包含 40 位常规角色与 2 位隐藏角色，涵盖 VOCALOID、EVA、名侦探柯南、东方、孤独摇滚、MyGO、原神等热门作品，持续扩充中。
 - **可视化交互**：16personalities 风格的交互式倾向滑块，直观展现你的思维倾向。
 - **一键分享**：精美的结果图报表，支持一键导出 PNG 海报分享给同好。
 - **纯前端架构**：无后端、无注册、无数据收集，测算过程全部在本地浏览器完成，极致极速且保护隐私。
@@ -122,11 +127,20 @@ src/
 |:-----|:-----|
 | `src/data/questions.json` | 39 道情境式题目 — 维度、原型权重、场景标签 |
 | `src/data/archetypes.json` | 8 个角色原型 — 名称、描述、亮点、短板 |
-| `src/data/characters.json` | 40+ 个角色条目 — 角色代码、MBTI 映射、标签、六维向量 |
+| `src/data/characters.json` | 42 个角色条目（含 2 个隐藏角色）— 角色代码、MBTI 映射、标签、六维向量 |
 | `src/data/characterVisuals.json` | 角色视觉配置 — 立绘、色彩、主题 |
 | `src/data/characterProbabilities.json` | 角色命中概率 — 基于人群统计的先验分布 |
 
 </details>
+
+## 📰 时间线
+
+- **2026.4.14 15:00** [网站](https://acgti.tianxingleo.top/)访问量超过 400 万
+- **2026.4.13 21:00:** [网站](https://acgti.tianxingleo.top/)访问人数达到 100 万，仓库Star 数达到 300
+- **2026.4.12 8:00:** 访问人数达到 50 万
+- **2026.4.11 23:00:** 进入 [**永雏塔菲**](https://www.bilibili.com/video/BV11FDyBZEN1/?spm_id_from=333.337.search-card.all.click) 直播间
+- **2026.4.11 12:00:** 在校内 100 人 BanG Dream 群测试，首次公开
+- **2026.4.10:** 创建仓库
 
 ## 🚀 本地开发
 
@@ -143,23 +157,17 @@ npm run build
 
 构建产物输出到 `dist/`，配置为相对路径（`base: './'`），可直接部署到 Cloudflare Pages 等静态托管平台。
 
-## 📰 时间线
-
-- **2026.4.13 21:00:** 网站访问人数达到 100 万，网站访问量超过 350 万，仓库Star 数达到 300
-- **2026.4.12 8:00:** 访问人数达到 50 万
-- **2026.4.11 23:00:** 进入 **永雏塔菲** 直播间
-- **2026.4.11 12:00:** 在校内 100 人 BanG Dream 群测试，首次公开
-- **2026.4.10:** 创建仓库
-
 ## 🤝 贡献
 
 欢迎 **Star** · 欢迎 **Fork** · 欢迎 **PR**！
 
 当前项目仍处于早期阶段，题目数量和角色库都还不够丰富。如果你有好的情境题目想法或想补充更多作品的角色，非常期待你的参与：
 
-- 补充新角色 → 编辑 `src/data/characters.json`
+- 补充新角色 → 编辑 `src/data/characters.json`（详见 [新增角色流程](docs/新增角色流程.md)）
 - 添加新题目 → 编辑 `src/data/questions.json`
 - 修复 Bug / 改进 UI → 直接提 PR
+
+> 新增角色的完整流程（含 WebP 图片转换、缩略图生成、概率重算等）请参考 [**新增角色流程文档**](docs/新增角色流程.md)。
 
 ### 分支管理
 
@@ -183,8 +191,8 @@ npm run build
 发版方式示例：
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.2.0
+git push origin v0.2.0
 ```
 
 ## 📄 开源协议与免责声明
@@ -235,7 +243,7 @@ git push origin v0.1.0
 
 ## 作者
 
-**[tianxingleo](https://github.com/tianxingleo/)** · [tianxingleo.top](https://tianxingleo.top)
+**tianxingleo** · [GitHub 主页](https://github.com/tianxingleo/) · [作者主页](https://tianxingleo.top)
 
 <div align="center">
 

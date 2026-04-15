@@ -3,13 +3,6 @@ import type { AppLocale } from './types'
 
 type LocalizedText = Record<AppLocale, string>
 
-const hiddenCharacterNameI18n: LocalizedText = {
-  'zh-CN': '隐藏角色',
-  'zh-TW': '隱藏角色',
-  en: 'Hidden Character',
-  ja: '隠しキャラ',
-}
-
 const hiddenCharacterSeriesI18n: LocalizedText = {
   'zh-CN': '有隐藏角色',
   'zh-TW': '有隱藏角色',
@@ -17,18 +10,11 @@ const hiddenCharacterSeriesI18n: LocalizedText = {
   ja: '隠し結果あり',
 }
 
-const hiddenCharacterTitleI18n: LocalizedText = {
-  'zh-CN': '已触发隐藏结果',
-  'zh-TW': '已觸發隱藏結果',
-  en: 'Hidden Result Triggered',
-  ja: '隠し結果を解放',
-}
-
 const hiddenCharacterNoteI18n: LocalizedText = {
-  'zh-CN': '你命中了一个隐藏角色结果。ACGTI 不会直接公开其角色名，结果页仅保留角色代码、形象和气质解读。',
-  'zh-TW': '你命中了一個隱藏角色結果。ACGTI 不會直接公開其角色名，結果頁僅保留角色代碼、形象與氣質解讀。',
-  en: 'You hit a hidden result. ACGTI keeps the actual character name masked and only shows the code, image, and personality reading.',
-  ja: '隠し結果に命中しました。ACGTIでは実際のキャラ名は伏せたまま、コードとビジュアル、解説のみを表示します。',
+  'zh-CN': '你命中了{label}。ACGTI 不会直接公开其角色名，结果页仅保留角色代码、形象和气质解读。',
+  'zh-TW': '你命中了{label}。ACGTI 不會直接公開其角色名，結果頁僅保留角色代碼、形象與氣質解讀。',
+  en: 'You hit {label}. ACGTI keeps the actual character name masked and only shows the code, image, and personality reading.',
+  ja: '{label} に命中しました。ACGTIでは実際のキャラ名は伏せたまま、コードとビジュアル、解説のみを表示します。',
 }
 
 const hiddenCharacterTagsI18n: Record<AppLocale, string[]> = {
@@ -36,6 +22,15 @@ const hiddenCharacterTagsI18n: Record<AppLocale, string[]> = {
   'zh-TW': ['隱藏結果', '低機率命中', '特殊氣質'],
   en: ['Hidden Result', 'Low Probability Hit', 'Special Aura'],
   ja: ['隠し結果', '低確率ヒット', '特殊な気配'],
+}
+
+const HIDDEN_CHARACTER_IDS = ['phrolova', 'kasugano-sora'] as const
+
+const hiddenCharacterLabelPrefixI18n: LocalizedText = {
+  'zh-CN': '隐藏角色',
+  'zh-TW': '隱藏角色',
+  en: 'Hidden Character ',
+  ja: '隠しキャラ',
 }
 
 const characterNameI18n: Record<string, LocalizedText> = {
@@ -261,6 +256,114 @@ const characterNameI18n: Record<string, LocalizedText> = {
     en: 'Ai Haibara',
     ja: '灰原哀',
   },
+  'violet-evergarden': {
+    'zh-CN': '薇尔莉特',
+    'zh-TW': '薇爾莉特',
+    en: 'Violet Evergarden',
+    ja: 'ヴァイオレット・エヴァーガーデン',
+  },
+  elaina: {
+    'zh-CN': '伊蕾娜',
+    'zh-TW': '伊蕾娜',
+    en: 'Elaina',
+    ja: 'イレイナ',
+  },
+  'chitanda-eru': {
+    'zh-CN': '千反田爱瑠',
+    'zh-TW': '千反田愛瑠',
+    en: 'Eru Chitanda',
+    ja: '千反田える',
+  },
+  'tomori-nao': {
+    'zh-CN': '友利奈绪',
+    'zh-TW': '友利奈緒',
+    en: 'Nao Tomori',
+    ja: '友利奈緒',
+  },
+  'nakano-azusa': {
+    'zh-CN': '中野梓',
+    'zh-TW': '中野梓',
+    en: 'Azusa Nakano',
+    ja: '中野梓',
+  },
+  'furukawa-nagisa': {
+    'zh-CN': '古河渚',
+    'zh-TW': '古河渚',
+    en: 'Nagisa Furukawa',
+    ja: '古河渚',
+  },
+  'nishimiya-shoko': {
+    'zh-CN': '西宫硝子',
+    'zh-TW': '西宮硝子',
+    en: 'Shoko Nishimiya',
+    ja: '西宮硝子',
+  },
+  'kusanagi-nene': {
+    'zh-CN': '草薙宁宁',
+    'zh-TW': '草薙寧寧',
+    en: 'Nene Kusanagi',
+    ja: '草薙寧々',
+  },
+  'akemi-homura': {
+    'zh-CN': '晓美焰',
+    'zh-TW': '曉美焰',
+    en: 'Homura Akemi',
+    ja: '暁美ほむら',
+  },
+  'yuigahama-yui': {
+    'zh-CN': '由比滨结衣',
+    'zh-TW': '由比濱結衣',
+    en: 'Yui Yuigahama',
+    ja: '由比ヶ浜結衣',
+  },
+  'suzumiya-haruhi': {
+    'zh-CN': '凉宫春日',
+    'zh-TW': '涼宮春日',
+    en: 'Haruhi Suzumiya',
+    ja: '涼宮ハルヒ',
+  },
+  'hoshino-ruby': {
+    'zh-CN': '星野露比',
+    'zh-TW': '星野露比',
+    en: 'Ruby Hoshino',
+    ja: 'ルビー',
+  },
+  'miyazono-kaori': {
+    'zh-CN': '宫园薰',
+    'zh-TW': '宮園薰',
+    en: 'Kaori Miyazono',
+    ja: '宮園かをり',
+  },
+  'awa-subaru': {
+    'zh-CN': '安和昴',
+    'zh-TW': '安和昴',
+    en: 'Subaru Awa',
+    ja: '安和すばる',
+  },
+  frieren: {
+    'zh-CN': '芙丽莲',
+    'zh-TW': '芙莉蓮',
+    en: 'Frieren',
+    ja: 'フリーレン',
+  },
+  'ijichi-nijika': {
+    'zh-CN': '伊地知虹夏',
+    'zh-TW': '伊地知虹夏',
+    en: 'Nijika Ijichi',
+    ja: '伊地知虹夏',
+  },
+  'tachibana-kanade': {
+    'zh-CN': '立华奏',
+    'zh-TW': '立華奏',
+    en: 'Kanade Tachibana',
+    ja: '立華かなで',
+  },
+  kaltsit: {
+    'zh-CN': '凯尔希',
+    'zh-TW': '凱爾希',
+    en: "Kal'tsit",
+    ja: 'ケルシー',
+  },
   'arima-kana': {
     'zh-CN': '有马加奈',
     'zh-TW': '有馬加奈',
@@ -279,6 +382,18 @@ const characterNameI18n: Record<string, LocalizedText> = {
     en: 'Amane Tanikaze',
     ja: '谷風天音',
   },
+  'kasugano-sora': {
+    'zh-CN': '春日野穹',
+    'zh-TW': '春日野穹',
+    en: 'Sora Kasugano',
+    ja: '春日野穹',
+  },
+  myrtle: {
+    'zh-CN': '桃金娘',
+    'zh-TW': '桃金娘',
+    en: 'Myrtle',
+    ja: 'テンニンカ',
+  }
   'vertin': {
     'zh-CN': '维尔汀',
     'zh-TW': '維爾汀',
@@ -408,6 +523,96 @@ const seriesI18n: Record<string, LocalizedText> = {
     en: 'Honkai Impact 3rd',
     ja: '崩壊3rd',
   },
+  '紫罗兰永恒花园': {
+    'zh-CN': '紫罗兰永恒花园',
+    'zh-TW': '紫羅蘭永恆花園',
+    en: 'Violet Evergarden',
+    ja: 'ヴァイオレット・エヴァーガーデン',
+  },
+  '魔女之旅': {
+    'zh-CN': '魔女之旅',
+    'zh-TW': '魔女之旅',
+    en: 'Wandering Witch',
+    ja: '魔女の旅々',
+  },
+  '冰菓': {
+    'zh-CN': '冰菓',
+    'zh-TW': '冰菓',
+    en: 'Hyouka',
+    ja: '氷菓',
+  },
+  Charlotte: {
+    'zh-CN': 'Charlotte',
+    'zh-TW': 'Charlotte',
+    en: 'Charlotte',
+    ja: 'Charlotte',
+  },
+  '轻音少女': {
+    'zh-CN': '轻音少女',
+    'zh-TW': '輕音少女',
+    en: 'K-ON!',
+    ja: 'けいおん!',
+  },
+  Clannad: {
+    'zh-CN': 'Clannad',
+    'zh-TW': 'Clannad',
+    en: 'CLANNAD',
+    ja: 'CLANNAD',
+  },
+  '声之形': {
+    'zh-CN': '声之形',
+    'zh-TW': '聲之形',
+    en: 'A Silent Voice',
+    ja: '聲の形',
+  },
+  '世界计划': {
+    'zh-CN': '世界计划',
+    'zh-TW': '世界計畫',
+    en: 'Project Sekai',
+    ja: 'プロジェクトセカイ',
+  },
+  '我的青春恋爱物语果然有问题': {
+    'zh-CN': '我的青春恋爱物语果然有问题',
+    'zh-TW': '果然我的青春戀愛喜劇搞錯了',
+    en: 'My Teen Romantic Comedy SNAFU',
+    ja: 'やはり俺の青春ラブコメはまちがっている。',
+  },
+  '凉宫春日的忧郁': {
+    'zh-CN': '凉宫春日的忧郁',
+    'zh-TW': '涼宮春日的憂鬱',
+    en: 'The Melancholy of Haruhi Suzumiya',
+    ja: '涼宮ハルヒの憂鬱',
+  },
+  '四月是你的谎言': {
+    'zh-CN': '四月是你的谎言',
+    'zh-TW': '四月是你的謊言',
+    en: 'Your Lie in April',
+    ja: '四月は君の嘘',
+  },
+  '少女乐队的呐喊 (GBC)': {
+    'zh-CN': '少女乐队的呐喊 (GBC)',
+    'zh-TW': '少女樂隊的吶喊 (GBC)',
+    en: 'Girls Band Cry',
+    ja: 'ガールズバンドクライ',
+  },
+  '葬送的芙丽莲': {
+    'zh-CN': '葬送的芙丽莲',
+    'zh-TW': '葬送的芙莉蓮',
+    en: 'Frieren: Beyond Journey\'s End',
+    ja: '葬送のフリーレン',
+  },
+  'Angel Beats!': {
+    'zh-CN': 'Angel Beats!',
+    'zh-TW': 'Angel Beats!',
+    en: 'Angel Beats!',
+    ja: 'Angel Beats!',
+  },
+  '明日方舟': {
+    'zh-CN': '明日方舟',
+    'zh-TW': '明日方舟',
+    en: 'Arknights',
+    ja: 'アークナイツ',
+  },
   '我推的孩子': {
     'zh-CN': '我推的孩子',
     'zh-TW': '我推的孩子',
@@ -425,6 +630,12 @@ const seriesI18n: Record<string, LocalizedText> = {
     'zh-TW': '天使☆囂囂 RE-BOOT!',
     en: 'Tenshi Souzou RE-BOOT!',
     ja: '天使☆騒々 RE-BOOT!',
+  },
+  '缘之空': {
+    'zh-CN': '缘之空',
+    'zh-TW': '緣之空',
+    en: 'Yosuga no Sora',
+    ja: 'ヨスガノソラ',
   },
   '重返未来:1999': {
     'zh-CN': '重返未来:1999',
@@ -447,12 +658,40 @@ export function isHiddenCharacter(character: Pick<CharacterMatch, 'hidden'> | nu
   return Boolean(character?.hidden)
 }
 
-export function getHiddenCharacterTitle(locale: AppLocale) {
-  return hiddenCharacterTitleI18n[locale]
+export function getHiddenCharacterOrder(character: Pick<CharacterMatch, 'id'> | null | undefined) {
+  const index = character ? HIDDEN_CHARACTER_IDS.indexOf(character.id as (typeof HIDDEN_CHARACTER_IDS)[number]) : -1
+  return index >= 0 ? index + 1 : Number.MAX_SAFE_INTEGER
 }
 
-export function getHiddenCharacterNote(locale: AppLocale) {
-  return hiddenCharacterNoteI18n[locale]
+export function getHiddenCharacterLabel(
+  character: Pick<CharacterMatch, 'id'> | null | undefined,
+  locale: AppLocale,
+) {
+  const order = getHiddenCharacterOrder(character)
+  if (order === Number.MAX_SAFE_INTEGER) {
+    return locale === 'en' ? 'Hidden Character' : hiddenCharacterLabelPrefixI18n[locale]
+  }
+
+  if (locale === 'en') {
+    return `${hiddenCharacterLabelPrefixI18n[locale]}${order}`
+  }
+
+  return `${hiddenCharacterLabelPrefixI18n[locale]}${order}`
+}
+
+export function getHiddenCharacterTitle(
+  locale: AppLocale,
+  character?: Pick<CharacterMatch, 'id'> | null,
+) {
+  return getHiddenCharacterLabel(character, locale)
+}
+
+export function getHiddenCharacterNote(
+  locale: AppLocale,
+  character?: Pick<CharacterMatch, 'id'> | null,
+) {
+  const label = getHiddenCharacterLabel(character, locale)
+  return hiddenCharacterNoteI18n[locale].replace('{label}', label)
 }
 
 export function getHiddenCharacterTags(locale: AppLocale) {
@@ -465,7 +704,7 @@ export function getLocalizedCharacterName(
   options?: { revealHidden?: boolean },
 ) {
   if (isHiddenCharacter(character as CharacterMatch) && !options?.revealHidden) {
-    return hiddenCharacterNameI18n[locale]
+    return getHiddenCharacterLabel(character, locale)
   }
   return resolveLocalizedText(characterNameI18n, character.id, locale, character.name)
 }

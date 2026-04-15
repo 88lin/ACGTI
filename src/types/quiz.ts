@@ -77,10 +77,13 @@ export interface CharacterMatch {
   name: string
   hidden?: boolean
   series: string
+  addedAt?: string
   image?: string
+  thumb?: string
   accent?: string
   matchCode: string
   matchCodeFlex?: string[]
+  matchWeight?: number
   code: string
   title?: string
   archetypeId: ArchetypeId
@@ -111,6 +114,12 @@ export interface QuizRecord {
   result: QuizResult
 }
 
+export interface CharacterMatchResult {
+  character: CharacterMatch
+  score: number
+  probability: number
+}
+
 export interface QuizResult {
   code: string
   mbtiCode: string
@@ -120,6 +129,7 @@ export interface QuizResult {
   matchScore: number
   matchProbability: number
   characterMatches: CharacterMatch[]
+  topCharacterMatches: CharacterMatchResult[]
   featuredCharacter: CharacterMatch | null
 }
 

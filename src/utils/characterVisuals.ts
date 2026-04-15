@@ -4,6 +4,7 @@ import { getCharacterPopulationProbability } from './characterProbability.ts'
 
 type CharacterVisualMeta = {
   image: string
+  thumb?: string
   accent: string
 }
 
@@ -28,6 +29,7 @@ export function hydrateCharacterVisual<T extends CharacterMatch>(character: T): 
   const hydrated = {
     ...character,
     image: resolvePublicAsset(visual?.image ?? character.image),
+    thumb: resolvePublicAsset(visual?.thumb ?? ''),
     accent: visual?.accent ?? character.accent,
   }
 
@@ -40,12 +42,17 @@ export function hydrateQuizResult(result: QuizResult | null): QuizResult | null 
   }
 
   const characterMatches = result.characterMatches.map((character) => hydrateCharacterVisual(character))
+  const topCharacterMatches = (result.topCharacterMatches ?? []).map((match) => ({
+    ...match,
+    character: hydrateCharacterVisual(match.character),
+  }))
   const featuredCharacter = result.featuredCharacter ? hydrateCharacterVisual(result.featuredCharacter) : characterMatches[0] ?? null
 
   return {
     ...result,
     matchProbability: result.matchProbability ?? getCharacterPopulationProbability(featuredCharacter?.id),
     characterMatches,
+    topCharacterMatches,
     featuredCharacter,
   }
 }

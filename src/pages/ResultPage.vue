@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import AdsenseSlot from '../components/AdsenseSlot.vue'
 import AppIcon from '../components/AppIcon.vue'
-import SharePoster from '../components/SharePoster.vue'
 import { useShare } from '../composables/useShare'
 import { useQuiz } from '../composables/useQuiz'
 import { useI18n } from '../i18n'
-import { getHiddenCharacterNote, getHiddenCharacterTags, getHiddenCharacterTitle, getLocalizedCharacterName, isHiddenCharacter } from '../i18n/characters'
+import { getHiddenCharacterNote, getHiddenCharacterTags, getHiddenCharacterTitle, getLocalizedCharacterName, getLocalizedCharacterSeries, isHiddenCharacter } from '../i18n/characters'
+import { getCharacterRarityMeta } from '../utils/characterRarity'
+import { formatCharacterProbability } from '../utils/characterProbability'
 import { normalizeMbtiCode } from '../utils/quizEngine'
+
+// SharePoster 只在用户点击"导出图片"时才加载和挂载
+const SharePosterAsync = defineAsyncComponent(() => import('../components/SharePoster.vue'))
 
 const route = useRoute()
 const router = useRouter()
@@ -17,17 +21,16 @@ const quiz = useQuiz()
 const activeDebugResult = ref<ReturnType<typeof quiz.createDebugResult>>(null)
 const result = computed(() => activeDebugResult.value ?? quiz.latestResult.value)
 const isCharacterImageBroken = ref(false)
+const characterImageAttemptIndex = ref(0)
 const share = useShare()
-const posterRef = ref<InstanceType<typeof SharePoster> | null>(null)
+const posterRef = ref<{ rootEl: HTMLElement | null } | null>(null)
+const shouldMountPoster = ref(false)
 const { locale, t, tm } = useI18n()
 const resultAdSlot = String(import.meta.env.VITE_ADSENSE_SLOT_RESULT ?? '').trim()
 
-function exportPosterImage() {
-  if (!result.value || !posterRef.value?.rootEl) return
-  void share.exportPoster(posterRef.value.rootEl, result.value)
-}
-
-onMounted(() => {
+// 结果页需要数据来处理 debug 查询和角色匹配
+onMounted(async () => {
+  await quiz.ensureData()
   quiz.resumeLastResult()
   applyDebugResultFromRoute()
 
@@ -35,6 +38,17 @@ onMounted(() => {
     void router.replace('/quiz')
   }
 })
+
+async function exportPosterImage() {
+  if (!result.value) return
+  // 首次导出时才挂载 SharePoster 组件
+  if (!shouldMountPoster.value) {
+    shouldMountPoster.value = true
+    await new Promise<void>((resolve) => setTimeout(resolve, 100))
+  }
+  if (!posterRef.value?.rootEl) return
+  void share.exportPoster(posterRef.value.rootEl, result.value)
+}
 
 watch(
   () => [route.query.type, route.query.character],
@@ -59,11 +73,33 @@ function copyText() {
   void share.copyShareText(result.value)
 }
 
-function hideBrokenImage(event: Event) {
+function getCharacterImageCandidates(image: string | undefined) {
+  if (!image) {
+    return []
+  }
+
+  const variants = [image]
+
+  if (image.endsWith('.webp')) {
+    variants.push(image.replace(/\.webp$/i, '.png'))
+  }
+
+  if (image.endsWith('.png')) {
+    variants.push(image.replace(/\.png$/i, '.webp'))
+  }
+
+  return Array.from(new Set(variants))
+}
+
+function handleCharacterImageError() {
+  const nextAttempt = characterImageAttemptIndex.value + 1
+
+  if (nextAttempt < primaryCharacterImageCandidates.value.length) {
+    characterImageAttemptIndex.value = nextAttempt
+    return
+  }
+
   isCharacterImageBroken.value = true
-  const img = event.currentTarget as HTMLImageElement | null
-  if (!img) return
-  img.style.display = 'none'
 }
 
 function applyDebugResultFromRoute() {
@@ -76,12 +112,12 @@ function applyDebugResultFromRoute() {
   }
 
   const preferredCharacter = requestedCharacterId
-    ? quiz.characters.find((item) => item.id === requestedCharacterId)
+    ? quiz.characters.value.find((item) => item.id === requestedCharacterId)
     : null
 
   // Backward compatible with old debug links using ?type=XXXX.
   const fallbackCharacter = !preferredCharacter && normalizedType
-    ? quiz.characters.find((item) => item.matchCode === normalizedType)
+    ? quiz.characters.value.find((item) => item.matchCode === normalizedType)
     : null
 
   const characterId = preferredCharacter?.id ?? fallbackCharacter?.id ?? ''
@@ -93,10 +129,13 @@ function applyDebugResultFromRoute() {
 const primaryCharacterImage = computed(() => {
   const primary = result.value?.characterMatches?.[0]
   if (!primary) return ''
-  return primary.image || `/images/characters/${primary.id}.png`
+  return primary.image || `/images/characters/${primary.id}.webp`
 })
+const primaryCharacterImageCandidates = computed(() => getCharacterImageCandidates(primaryCharacterImage.value))
+const activePrimaryCharacterImage = computed(() => primaryCharacterImageCandidates.value[characterImageAttemptIndex.value] ?? '')
 
 const primaryCharacter = computed(() => result.value?.characterMatches?.[0] ?? null)
+const secondaryCharacterMatches = computed(() => result.value?.topCharacterMatches?.slice(1, 3) ?? [])
 const displayTags = computed(() => {
   if (!primaryCharacter.value) {
     return []
@@ -109,7 +148,133 @@ const displayTags = computed(() => {
       )
 })
 const displayCode = computed(() => result.value?.code ?? result.value?.mbtiCode ?? '')
+const displayProbability = computed(() => formatCharacterProbability(result.value?.matchProbability ?? 0))
 const resultThemeColor = computed(() => primaryCharacter.value?.accent ?? result.value?.archetype.accent ?? '#e2ad3b')
+function hexToRgb(hex: string) {
+  const normalized = hex.replace('#', '')
+  const full = normalized.length === 3
+    ? normalized.split('').map((char) => char + char).join('')
+    : normalized
+
+  return {
+    r: parseInt(full.substring(0, 2), 16),
+    g: parseInt(full.substring(2, 4), 16),
+    b: parseInt(full.substring(4, 6), 16),
+  }
+}
+
+function mixRgb(base: { r: number; g: number; b: number }, target: { r: number; g: number; b: number }, weight: number) {
+  const ratio = Math.max(0, Math.min(1, weight))
+  return {
+    r: Math.round(base.r * (1 - ratio) + target.r * ratio),
+    g: Math.round(base.g * (1 - ratio) + target.g * ratio),
+    b: Math.round(base.b * (1 - ratio) + target.b * ratio),
+  }
+}
+
+function toRgbString(color: { r: number; g: number; b: number }, alpha?: number) {
+  if (alpha === undefined) {
+    return `rgb(${color.r}, ${color.g}, ${color.b})`
+  }
+
+  return `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`
+}
+
+const exportBtnTextColor = computed(() => {
+  const { r, g, b } = hexToRgb(resultThemeColor.value)
+  // WCAG relative luminance
+  const toLinear = (c: number) => {
+    const s = c / 255
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
+  }
+  const bgL = 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b)
+  const whiteL = 1.0
+  const darkL = 0.0222 // #111827
+  const whiteContrast = (Math.max(bgL, whiteL) + 0.05) / (Math.min(bgL, whiteL) + 0.05)
+  const darkContrast = (Math.max(bgL, darkL) + 0.05) / (Math.min(bgL, darkL) + 0.05)
+  return whiteContrast >= darkContrast ? '#ffffff' : '#111827'
+})
+const rarityMeta = computed(() => getCharacterRarityMeta(primaryCharacter.value?.id))
+const rarityTierLabel = computed(() => {
+  const tier = rarityMeta.value?.tier
+  return tier
+    ? t(`result.rarityTiers.${tier}`, undefined, tier)
+    : '--'
+})
+const rarityTierStyle = computed(() => {
+  const base = hexToRgb(resultThemeColor.value)
+  const white = { r: 255, g: 255, b: 255 }
+  const dark = { r: 47, g: 58, b: 69 }
+
+  switch (rarityMeta.value?.tier) {
+    case 'ur': {
+      const text = mixRgb(base, dark, 0.22)
+      return {
+        color: toRgbString(text),
+        background: toRgbString(base, 0.28),
+        borderColor: toRgbString(base, 0.5),
+        boxShadow: `0 8px 18px ${toRgbString(base, 0.18)}`,
+      }
+    }
+    case 'ssr': {
+      const text = mixRgb(base, dark, 0.3)
+      return {
+        color: toRgbString(text),
+        background: toRgbString(base, 0.18),
+        borderColor: toRgbString(base, 0.34),
+        boxShadow: `0 6px 14px ${toRgbString(base, 0.12)}`,
+      }
+    }
+    case 'sr': {
+      const text = mixRgb(base, dark, 0.4)
+      return {
+        color: toRgbString(text),
+        background: toRgbString(base, 0.1),
+        borderColor: toRgbString(base, 0.22),
+        boxShadow: 'none',
+      }
+    }
+    default: {
+      const muted = mixRgb(base, white, 0.72)
+      const text = mixRgb(base, dark, 0.52)
+      return {
+        color: toRgbString(text),
+        background: toRgbString(muted, 0.32),
+        borderColor: toRgbString(base, 0.16),
+        boxShadow: 'none',
+      }
+    }
+  }
+})
+const rarityRankLabel = computed(() => {
+  if (!rarityMeta.value) {
+    return ''
+  }
+
+  return t('result.rarityRank', {
+    rank: rarityMeta.value.rank,
+    total: rarityMeta.value.total,
+  }, `相对稀有排名 #${rarityMeta.value.rank}/${rarityMeta.value.total}`)
+})
+const raritySummaryLabel = computed(() => {
+  if (!rarityMeta.value) {
+    return ''
+  }
+
+  return t(`result.rarityTierDescriptions.${rarityMeta.value.tier}`, {
+    start: rarityMeta.value.startRank,
+    end: rarityMeta.value.endRank,
+  })
+})
+const probabilityLabel = computed(() => {
+  if (!result.value) {
+    return ''
+  }
+
+  return t('result.populationProbability', {
+    value: displayProbability.value,
+  }, `理论命中率 ${displayProbability.value}%`)
+})
 const strongestTrait = computed(() => {
   if (!result.value) {
     return null
@@ -129,7 +294,8 @@ const strongestTrait = computed(() => {
   }, null as { trait: (typeof traits.value)[number]; score: (typeof result.value.scores)[TraitDimension] } | null)
 })
 
-watch(primaryCharacterImage, () => {
+watch(primaryCharacterImageCandidates, () => {
+  characterImageAttemptIndex.value = 0
   isCharacterImageBroken.value = false
 })
 
@@ -172,6 +338,17 @@ function scrollToSection(sectionId: string) {
   window.history.replaceState(null, '', `#${sectionId}`)
   target.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
+
+function viewMatchedCharacter(characterId: string) {
+  void router.push({
+    path: '/result',
+    query: { character: characterId },
+  })
+
+  if (typeof window !== 'undefined') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
 </script>
 
 <template>
@@ -182,7 +359,7 @@ function scrollToSection(sectionId: string) {
           <p class="hero-caption">{{ t('result.heroCaption') }}</p>
           <div class="hero-title-wrap">
             <h1 class="hero-title">{{ primaryCharacter ? getLocalizedCharacterName(primaryCharacter, locale, { revealHidden: true }) : t('archetypes.' + result.archetype.id + '.name', undefined, result.archetype.name) }}</h1>
-            <span v-if="primaryCharacter && isHiddenCharacter(primaryCharacter)" class="hero-hidden-badge">{{ getHiddenCharacterTitle(locale) }}</span>
+            <span v-if="primaryCharacter && isHiddenCharacter(primaryCharacter)" class="hero-hidden-badge">{{ getHiddenCharacterTitle(locale, primaryCharacter) }}</span>
           </div>
           <div class="hero-badge-wrap">
             <span class="hero-code">{{ displayCode }}</span>
@@ -190,11 +367,13 @@ function scrollToSection(sectionId: string) {
           <div class="hero-metrics">
             <div class="hero-metric">
               <span>{{ t('result.rarity') }}</span>
-              <strong>{{ result.matchProbability }}%</strong>
+              <strong class="rarity-pill" :style="rarityTierStyle">{{ rarityTierLabel }}</strong>
+              <small>{{ raritySummaryLabel }}</small>
             </div>
             <div class="hero-metric">
               <span>{{ t('result.match') }}</span>
               <strong>{{ result.matchScore }}%</strong>
+              <small>{{ probabilityLabel }}</small>
             </div>
           </div>
           <p class="hero-quote">{{ t('archetypes.' + result.archetype.id + '.oneLiner', undefined, result.archetype.oneLiner) }}</p>
@@ -219,11 +398,13 @@ function scrollToSection(sectionId: string) {
         <div class="hero-visual poster-box">
           <div class="poster-frame">
             <img
-              v-if="primaryCharacter?.id && !isCharacterImageBroken"
-              :src="primaryCharacterImage"
+              v-if="primaryCharacter?.id && activePrimaryCharacterImage && !isCharacterImageBroken"
+              :src="activePrimaryCharacterImage"
               :alt="primaryCharacter ? getLocalizedCharacterName(primaryCharacter, locale) : 'Character'"
               class="hero-image"
-              @error="hideBrokenImage"
+              decoding="async"
+              fetchpriority="high"
+              @error="handleCharacterImageError"
             />
             <div v-else class="hero-image-fallback">
               <AppIcon name="fallback" />
@@ -243,7 +424,7 @@ function scrollToSection(sectionId: string) {
       <main class="result-main">
         <section class="intro-block" v-reveal>
           <p>{{ t('archetypes.' + result.archetype.id + '.description', undefined, result.archetype.description) }}</p>
-          <p>{{ primaryCharacter ? (isHiddenCharacter(primaryCharacter) ? getHiddenCharacterNote(locale) : t('characters.' + primaryCharacter.id + '.note', undefined, primaryCharacter.note)) : '' }}</p>
+          <p>{{ primaryCharacter ? (isHiddenCharacter(primaryCharacter) ? getHiddenCharacterNote(locale, primaryCharacter) : t('characters.' + primaryCharacter.id + '.note', undefined, primaryCharacter.note)) : '' }}</p>
           <div v-if="primaryCharacter?.personaBasis?.type === 'fandom-impression'" class="persona-basis-notice">
             <span class="persona-basis-badge">{{ t('result.personaBasisBadge') }}</span>
             <p class="persona-basis-summary">{{ t('result.personaBasisTip') }}</p>
@@ -319,18 +500,42 @@ function scrollToSection(sectionId: string) {
           </article>
         </section>
 
-        <section class="tags-block" id="tags-section" v-if="primaryCharacter" v-reveal>
-          <h3>
-            <AppIcon name="character" />
-            {{ t('result.tags') }}
-          </h3>
-          <div class="tags-wrap">
-            <span v-for="tag in displayTags" :key="tag"># {{ tag }}</span>
+        <section v-if="secondaryCharacterMatches.length" class="similar-characters-section" id="similar-section" v-reveal>
+          <div class="section-title-wrap">
+            <div class="section-index">+</div>
+            <h2 class="section-title">{{ t('result.otherMatchesTitle', undefined, '其他高匹配角色') }}</h2>
+          </div>
+
+          <div class="similar-characters-grid">
+            <RouterLink
+              v-for="match in secondaryCharacterMatches"
+              :key="match.character.id"
+              :to="{ path: '/result', query: { character: match.character.id } }"
+              class="similar-character-card"
+              @click.prevent="viewMatchedCharacter(match.character.id)"
+            >
+              <div class="similar-character-head">
+                <div>
+                  <p class="similar-character-rank">{{ t('result.otherMatchesLabel', undefined, '高匹配候选') }}</p>
+                  <h3>{{ getLocalizedCharacterName(match.character, locale) }}</h3>
+                  <p class="similar-character-series">{{ getLocalizedCharacterSeries(match.character, locale) }}</p>
+                </div>
+                <div class="similar-character-score">
+                  <strong>{{ match.score }}%</strong>
+                  <span>{{ t('result.match', undefined, '整体命中感') }}</span>
+                </div>
+              </div>
+
+              <p class="similar-character-code">{{ match.character.code }}</p>
+              <p class="similar-character-note">
+                {{ isHiddenCharacter(match.character) ? getHiddenCharacterNote(locale, match.character) : t('characters.' + match.character.id + '.note', undefined, match.character.note) }}
+              </p>
+            </RouterLink>
           </div>
         </section>
 
         <div style="margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
-  <button @click="exportPosterImage" :disabled="share.isExporting.value" class="export-image-btn" :style="{ backgroundColor: resultThemeColor }">
+  <button @click="exportPosterImage" :disabled="share.isExporting.value" class="export-image-btn" :style="{ backgroundColor: resultThemeColor, color: exportBtnTextColor }">
     <AppIcon name="spinner" v-if="share.isExporting.value" style="animation: spin 1s linear infinite" />
     <AppIcon name="download" v-else />
     <span style="letter-spacing: 0.05em">{{ share.isExporting.value ? t('common.generating', undefined, '生成中...') : t('common.saveImage', undefined, '生成并分享次元身份卡') }}</span>
@@ -339,7 +544,7 @@ function scrollToSection(sectionId: string) {
 </div>
 
 <div class="poster-capture-wrapper">
-  <SharePoster ref="posterRef" :result="result" />
+  <SharePosterAsync v-if="shouldMountPoster" ref="posterRef" :result="result" />
 </div>
 
 
@@ -352,16 +557,25 @@ function scrollToSection(sectionId: string) {
         <div class="sidebar-card profile-card">
           <p class="small-title">{{ t('result.hitCharacter') }}</p>
           <h3>{{ primaryCharacter ? getLocalizedCharacterName(primaryCharacter, locale, { revealHidden: true }) : t('archetypes.' + result.archetype.id + '.name', undefined, result.archetype.name) }}</h3>
-          <p v-if="primaryCharacter && isHiddenCharacter(primaryCharacter)" class="profile-hidden-flag">{{ getHiddenCharacterTitle(locale) }}</p>
+          <p v-if="primaryCharacter && isHiddenCharacter(primaryCharacter)" class="profile-hidden-flag">{{ getHiddenCharacterTitle(locale, primaryCharacter) }}</p>
           <p class="profile-code">{{ displayCode }}</p>
-          <p class="profile-probability">{{ t('result.matchProbability', { value: result.matchProbability }) }}</p>
+          <p class="profile-rarity">
+            <span class="rarity-pill rarity-pill--sidebar" :style="rarityTierStyle">{{ rarityTierLabel }}</span>
+          </p>
+          <p class="profile-probability">{{ raritySummaryLabel }}</p>
+          <p class="profile-probability">{{ rarityRankLabel }}</p>
+          <p class="profile-probability">{{ probabilityLabel }}</p>
+          
+          <div v-if="primaryCharacter && displayTags.length" class="sidebar-tags-wrap" style="margin-top: 16px;">
+            <span v-for="tag in displayTags" :key="tag"># {{ tag }}</span>
+          </div>
         </div>
 
         <div class="sidebar-card nav-card">
           <p class="small-title">{{ t('result.toc') }}</p>
           <a href="#traits-section" @click.prevent="scrollToSection('traits-section')">{{ tm<string[]>('result.tocItems')[0] }}</a>
           <a href="#analysis-section" @click.prevent="scrollToSection('analysis-section')">{{ tm<string[]>('result.tocItems')[1] }}</a>
-          <a href="#tags-section" @click.prevent="scrollToSection('tags-section')">{{ tm<string[]>('result.tocItems')[2] }}</a>
+          <a v-if="secondaryCharacterMatches.length" href="#similar-section" @click.prevent="scrollToSection('similar-section')">{{ t('result.otherMatchesTitle', undefined, '候选角色') }}</a>
         </div>
 
         <div class="sidebar-actions">
@@ -370,7 +584,7 @@ function scrollToSection(sectionId: string) {
             {{ t('result.share') }}
           </button>
           
-          <button @click="exportPosterImage" :disabled="share.isExporting.value" :style="{ background: resultThemeColor, marginTop: '4px' }">
+          <button class="sidebar-export-btn" @click="exportPosterImage" :disabled="share.isExporting.value" :style="{ background: resultThemeColor, color: exportBtnTextColor, marginTop: '4px' }">
             <AppIcon name="spinner" v-if="share.isExporting.value" style="animation: spin 1s linear infinite" />
             <AppIcon name="download" v-else />
             {{ share.isExporting.value ? t('common.generating', undefined, '生成中...') : t('common.saveImage', undefined, '导出图片') }}
@@ -537,6 +751,27 @@ function scrollToSection(sectionId: string) {
   margin-top: 4px;
   font-size: 24px;
   line-height: 1;
+}
+
+.rarity-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.hero-metric small {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0.86;
 }
 
 .hero-actions {
@@ -873,36 +1108,172 @@ function scrollToSection(sectionId: string) {
   color: #596671;
 }
 
-.tags-block {
-  margin-top: 24px;
+.similar-characters-section {
+  margin-top: 32px;
+}
+
+.similar-characters-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.similar-character-card {
   background: linear-gradient(180deg, #ffffff, #fbfdfb);
   border: 1px solid #e8ecef;
   border-radius: 18px;
-  padding: 24px;
+  padding: 20px 22px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.tags-block h3 {
-  margin: 0 0 12px;
+.similar-character-card:hover {
+  transform: translateY(-3px);
+  border-color: #cfe4db;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+.similar-character-head {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 22px;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
 }
 
-.tags-wrap {
+.similar-character-rank {
+  margin: 0 0 6px;
+  color: #7b8690;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.similar-character-head h3 {
+  margin: 0;
+  font-size: 24px;
+  color: #2f3a45;
+}
+
+.similar-character-series {
+  margin: 8px 0 0;
+  color: #6f7a83;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.similar-character-score {
+  min-width: 92px;
+  text-align: right;
+}
+
+.similar-character-score strong {
+  display: block;
+  color: #33a474;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.similar-character-score span {
+  display: block;
+  margin-top: 6px;
+  color: #7b8690;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.similar-character-code {
+  margin: 14px 0 10px;
+  color: #e4ae3a;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.similar-character-note {
+  margin: 0;
+  color: #596671;
+  line-height: 1.75;
+}
+
+.sidebar-tags-wrap {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.tags-wrap span {
+.sidebar-tags-wrap span {
   border: 1px solid #e4e8eb;
   background: #f7f8f9;
   border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 13px;
+  padding: 4px 10px;
+  font-size: 11px;
   font-weight: 700;
   color: #596671;
+}
+
+.sidebar-similar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-similar-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #edf0f2;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.sidebar-similar-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: #cfe4db;
+  background: #fff;
+}
+
+.sidebar-similar-info h4 {
+  margin: 0;
+  font-size: 15px;
+  color: #2f3a45;
+  font-weight: 800;
+}
+
+.sidebar-similar-info p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #6f7a83;
+  font-weight: 600;
+}
+
+.sidebar-similar-score {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sidebar-similar-score strong {
+  display: block;
+  color: #33a474;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.sidebar-similar-score span {
+  display: block;
+  margin-top: 4px;
+  color: #7b8690;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .result-ad-section {
@@ -951,8 +1322,17 @@ function scrollToSection(sectionId: string) {
   text-transform: uppercase;
 }
 
-.profile-probability {
+.profile-rarity {
   margin: 10px 0 0;
+}
+
+.rarity-pill--sidebar {
+  min-height: 34px;
+  font-size: 16px;
+}
+
+.profile-probability {
+  margin: 6px 0 0;
   color: #5f6b75;
   font-size: 14px;
   font-weight: 700;
@@ -1050,6 +1430,10 @@ function scrollToSection(sectionId: string) {
   font-weight: 700;
 }
 
+.sidebar-export-btn {
+  border-color: transparent !important;
+}
+
 .project-card {
   text-align: center;
 }
@@ -1103,6 +1487,10 @@ function scrollToSection(sectionId: string) {
   }
 
   .analysis-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .similar-characters-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1182,7 +1570,6 @@ function scrollToSection(sectionId: string) {
 
   .traits-section,
   .analysis-grid,
-  .tags-block,
   .result-sidebar {
     margin-left: 2px;
     margin-right: 2px;
@@ -1211,7 +1598,7 @@ function scrollToSection(sectionId: string) {
   .traits-list,
   .traits-highlight,
   .analysis-card,
-  .tags-block,
+  .similar-character-card,
   .sidebar-card {
     padding: 14px;
   }
@@ -1229,9 +1616,16 @@ function scrollToSection(sectionId: string) {
     gap: 10px;
   }
 
-  .analysis-card h3,
-  .tags-block h3 {
+  .analysis-card h3 {
     font-size: 18px;
+  }
+
+  .similar-character-head {
+    flex-direction: column;
+  }
+
+  .similar-character-score {
+    text-align: left;
   }
 
   .hero-actions {
@@ -1296,9 +1690,9 @@ function scrollToSection(sectionId: string) {
 
   .sidebar-card,
   .analysis-card,
+  .similar-character-card,
   .traits-list,
-  .traits-highlight,
-  .tags-block {
+  .traits-highlight {
     border-radius: 14px;
   }
 }
@@ -1308,7 +1702,6 @@ function scrollToSection(sectionId: string) {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: white;
   border: none;
   border-radius: 999px;
   padding: 16px 36px;
