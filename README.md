@@ -386,6 +386,36 @@ git push origin v0.2.0
 - **视觉素材** — 项目中的角色立绘与背景图片由 **ChatGPT (DALL·E)** 生成
 - **特别鸣谢** — [saurlax](https://saurlax.com/) 提供 GPT-5.4 Token 支持
 
+## 支持项目
+
+如果你喜欢 ACGTI 并希望支持它的持续维护和更新：
+
+- ⭐ 在 GitHub 给仓库点 Star
+- 🔁 把测试链接分享给朋友、群聊或同好圈
+- 💖 赞助支持：[赞助页面](https://acgti.tianxingleo.top/sponsor)
+
+你的支持将用于覆盖服务器、域名、数据库和开发成本。
+
+> 赞助为自愿行为，不对应任何商品或服务。ACGTI 核心功能对所有用户完全免费。
+
+<details>
+<summary><b>扫码赞助</b></summary>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://pub-f8d3afa0c3274f1e943ee2f8c45dff96.r2.dev/26_04_2cebfcbc467809e334f38fd4b2e22aa8.webp" alt="微信收款码" width="200" />
+      <br/>微信支付
+    </td>
+    <td align="center">
+      <img src="https://pub-f8d3afa0c3274f1e943ee2f8c45dff96.r2.dev/26_04_d2c89724432aca7063429257cb363d62.webp" alt="支付宝收款码" width="200" />
+      <br/>支付宝
+    </td>
+  </tr>
+</table>
+
+</details>
+
 ## 作者
 
 **tianxingleo** · [GitHub 主页](https://github.com/tianxingleo/) · [作者主页](https://tianxingleo.top)
