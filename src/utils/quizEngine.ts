@@ -65,6 +65,7 @@ const ARCHETYPE_WEIGHT = 0.28
 const VECTOR_WEIGHT = 0.27
 const CHARACTER_SPECIFIC_WEIGHT = 0.2
 const CLOSE_MATCH_THRESHOLD = 0.025
+const ENABLE_DIMENSION_WEIGHT_OVERRIDE = true
 const DIMENSION_SCORE_WEIGHTS = questionDimensionWeights as Record<string, Partial<Record<DimensionPair, number>>>
 
 // 16personalities 风格的维度标签配置
@@ -220,7 +221,9 @@ function buildAnswerProfile({
       return
     }
 
-    const dimensionWeights = DIMENSION_SCORE_WEIGHTS[question.id] ?? { [question.dimension]: question.sign }
+    const dimensionWeights = ENABLE_DIMENSION_WEIGHT_OVERRIDE
+      ? (DIMENSION_SCORE_WEIGHTS[question.id] ?? { [question.dimension]: question.sign })
+      : { [question.dimension]: question.sign }
     for (const pair in dimensionWeights) {
       const dimension = pair as DimensionPair
       const weight = dimensionWeights[dimension] ?? 0
