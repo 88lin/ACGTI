@@ -150,6 +150,8 @@ const communityCards = computed(() => {
 .container {
   width: min(1200px, calc(100% - 2rem));
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .ad-section {

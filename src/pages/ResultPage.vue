@@ -732,12 +732,12 @@ async function handleFeedbackSubmit() {
           </div>
         </section>
 
-        <section v-if="liveStats && (liveStats.sameCharacterCount > 0 || liveStats.sameArchetypeCount > 0)" class="live-stats-section" v-reveal>
+        <section class="live-stats-section" v-reveal>
           <div class="section-title-wrap">
             <div class="section-index">★</div>
             <h2 class="section-title">{{ t('result.liveStats.title') }}</h2>
           </div>
-          <div class="live-stats-card">
+          <div v-if="liveStats && (liveStats.sameCharacterCount > 0 || liveStats.sameArchetypeCount > 0)" class="live-stats-card">
             <div class="live-stats-grid">
               <div v-if="liveStats.sameCharacterCount > 0" class="live-stat-item">
                 <span class="live-stat-value">{{ formatCount(liveStats.sameCharacterCount) }}</span>
@@ -757,6 +757,22 @@ async function handleFeedbackSubmit() {
               </div>
             </div>
             <p class="live-stats-hint">{{ t('result.liveStats.updateHint') }}</p>
+          </div>
+          <div v-else class="live-stats-card live-stats-card--loading">
+            <div class="live-stats-grid">
+              <div class="live-stat-item live-stat-item--skeleton">
+                <span class="live-stat-value">--</span>
+                <span class="live-stat-label">{{ t('result.liveStats.sameCharacter', { count: '--' }) }}</span>
+              </div>
+              <div class="live-stat-item live-stat-item--skeleton">
+                <span class="live-stat-value">--</span>
+                <span class="live-stat-label">{{ t('result.liveStats.sameArchetype', { count: '--' }) }}</span>
+              </div>
+              <div class="live-stat-item live-stat-item--skeleton">
+                <span class="live-stat-value">--%</span>
+                <span class="live-stat-label">{{ t('result.liveStats.sitePercent', { percent: '--' }) }}</span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -2782,6 +2798,14 @@ async function handleFeedbackSubmit() {
   font-size: 11px;
   color: #9aa3ab;
   font-weight: 500;
+}
+
+.live-stats-card--loading {
+  opacity: 0.6;
+}
+
+.live-stat-item--skeleton .live-stat-value {
+  color: #cdd4d9;
 }
 
 .sidebar-live-stats {

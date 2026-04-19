@@ -166,7 +166,7 @@ onMounted(async () => {
           {{ t('stats.subtitle') }}
           <br>
           <small style="opacity: 0.8; font-size: 0.85em; display: inline-block; margin-top: 6px;">
-            (统计数据从 2026.4.18 18:00 开始记录)
+            ({{ t('stats.startNote') }})
           </small>
         </p>
       </div>
@@ -218,10 +218,13 @@ onMounted(async () => {
           <p class="section-subtitle">{{ t('stats.characters.subtitle') }}</p>
 
           <div class="ranking-list">
-            <div
+            <component
+              :is="getCharacterFromCode(item.code) ? 'RouterLink' : 'div'"
               v-for="(item, index) in topCharacters"
               :key="item.code"
               class="ranking-row character-row"
+              :to="getCharacterFromCode(item.code) ? { path: '/result', query: { character: getCharacterFromCode(item.code)?.id } } : undefined"
+              style="text-decoration: none; color: inherit; display: flex;"
             >
               <span class="ranking-index">{{ index + 1 }}</span>
               <img
@@ -248,7 +251,7 @@ onMounted(async () => {
                 </div>
                 <span class="ranking-count">{{ formatNumber(item.count) }}</span>
               </div>
-            </div>
+            </component>
           </div>
         </div>
       </section>
@@ -433,8 +436,7 @@ onMounted(async () => {
   width: 64px;
   height: 80px;
   border-radius: 12px;
-  object-fit: cover;
-  object-position: top;
+  object-fit: contain;
   background: #f0f4f8;
   border: 1px solid #edf1f4;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
