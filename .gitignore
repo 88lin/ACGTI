@@ -66,6 +66,7 @@ analysis/*.db
 analysis/*.sqlite
 analysis/*.sqlite3
 analysis/*.csv
+analysis/calibration-round*.md
 
 # Misc assets / archives
 *.png
